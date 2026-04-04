@@ -5,9 +5,9 @@
 
 public class GradeManager {
 
-    private static final String[] CSE_SUBJECTS = { "DSA", "Java", "OOPs", "CPP" };
-    private static final String[] IT_SUBJECTS = { "DOC", "Computational Methods", "Probability", "DBMS" };
-    private static final String[] AIML_SUBJECTS = { "Python", "Probability", "Artificial Intelligence", "Machine Learning" };
+    private static final String[] CSE_SUBJECTS = { "Data Sturcture & Algorithm", "Programming in Java", "Theory of Computation", "Database and Management System" };
+    private static final String[] IT_SUBJECTS = { "Object Oriented Programming in CPP", "Computational Methods", "Discrete Mathematics", "Programming in C" };
+    private static final String[] AIML_SUBJECTS = { "Python", "Probability & Statistics", "Artificial Intelligence", "Machine Learning" };
     private static final String[] ECE_SUBJECTS = { "Digital Electronics", "Signals and Systems", "Network Theory", "Microprocessors" };
     private static final String[] MECH_SUBJECTS = { "Thermodynamics", "Fluid Mechanics", "Machine Design", "Manufacturing" };
     private static final String[] CIVIL_SUBJECTS = { "Structural Analysis", "Surveying", "Geotechnical Engineering", "Transportation Engineering" };
@@ -45,21 +45,22 @@ public class GradeManager {
 
     public static String generateReport(Student[] students) {
         StringBuilder sb = new StringBuilder();
-        sb.append("========== CENTRAL STUDENT DATABASE REPORT ==========\n");
-        sb.append(String.format("%-10s %-18s %-10s %-12s %-8s%n",
-                "Roll No", "Name", "Branch", "Grade", "Percent"));
-        sb.append("----------------------------------------------------\n");
+        sb.append("\n\n========== CENTRAL STUDENT DATABASE REPORT ==========\n");
+        sb.append(String.format("%-10s %-18s %-10s %-20s %-8s %-8s%n",
+                "Roll No", "Name", "Branch", "Grade", "Percent", "Bonus"));
+        sb.append("----------------------------------------------------------------------------\n");
 
         for (Student s : students) {
-            sb.append(String.format("%-10d %-18s %-10s %-12s %-8.1f%n",
+            sb.append(String.format("%-10d %-18s %-10s %-20s %-8.1f %-8.1f%n",
                     s.getRollNo(),
                     truncate(s.getName(), 18),
                     s.getBranch(),
                     s.getGrade(),
-                    s.getPercentage()));
+                    s.getPercentage(),
+                    s.getBonusMarks()));
         }
 
-        sb.append("----------------------------------------------------\n");
+        sb.append("----------------------------------------------------------------------------\n");
         sb.append("Total Students: ").append(students.length);
         return sb.toString();
     }

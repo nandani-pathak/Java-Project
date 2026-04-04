@@ -34,7 +34,13 @@ public class Main {
                 marks[j] = readValidatedMark(sc, subjects[j]);
             }
 
-            students[i] = new Student(name, rollNo, branch, subjects, marks);
+            if (readYesNo(sc, "Did the student earn co-curricular activity credit? (yes/no): ")) {
+                String activityCategory = readActivityCategory(sc);
+                double bonusMarks = ActivityStudent.getBonusMarksForCategory(activityCategory);
+                students[i] = new ActivityStudent(name, rollNo, branch, subjects, marks, activityCategory, bonusMarks);
+            } else {
+                students[i] = new Student(name, rollNo, branch, subjects, marks);
+            }
         }
 
         System.out.println("\n\n========== STUDENT RECORDS ==========");
@@ -45,7 +51,7 @@ public class Main {
         System.out.println("\n" + GradeManager.generateReport(students));
 
         if (n > 0) {
-            System.out.println("\n========== DEPARTMENT TOPPERS ==========");
+            System.out.println("\n\n========== DEPARTMENT TOPPERS ==========");
             String[] branches = GradeManager.getAvailableBranches();
             for (String branch : branches) {
                 Student branchTopper = GradeManager.findTopperByBranch(students, branch);
@@ -77,7 +83,8 @@ public class Main {
         System.out.println("               COLLEGE STUDENT DATABASE SYSTEM");
         System.out.println("            BTECH ACADEMIC RECORD MANAGEMENT PORTAL");
         System.out.println("==============================================================");
-        System.out.println("Available Departments: CSE, IT, AI/ML, ECE, MECH, CIVIL, OTHER\n");
+        System.out.println("Available Departments: CSE, IT, AI/ML, ECE, MECH, CIVIL, OTHER");
+        System.out.println("Co-curricular Credits: Sports, Hackathons, Event Leadership, Culture\n");
     }
 
     private static int readStudentCount(Scanner sc) {
@@ -109,14 +116,15 @@ public class Main {
 
     private static String readBranch(Scanner sc) {
         while (true) {
-            System.out.println("Select Department:");
+            System.out.println("\n\nSelect Department:\n");
             System.out.println("1. CSE");
             System.out.println("2. IT");
             System.out.println("3. AI/ML");
             System.out.println("4. ECE");
             System.out.println("5. MECH");
             System.out.println("6. CIVIL");
-            System.out.println("7. OTHER");
+            System.out.println("7. OTHER\n");
+
             System.out.print("Enter choice : ");
 
             String choice = sc.nextLine().trim();
@@ -136,7 +144,52 @@ public class Main {
                 case "7":
                     return "OTHER";
                 default:
-                    System.out.println("  !! Please choose a number from 1 to 7.");
+                    System.out.println("\nPlease choose a number from 1 to 7.\n");
+            }
+        }
+    }
+
+    private static boolean readYesNo(Scanner sc, String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            String input = sc.nextLine().trim().toLowerCase();
+            if (input.equals("yes") || input.equals("y")) {
+                return true;
+            }
+            if (input.equals("no") || input.equals("n")) {
+                return false;
+            }
+            System.out.println("  !! Please enter yes or no.");
+        }
+    }
+
+    private static String readActivityCategory(Scanner sc) {
+        while (true) {
+            System.out.println("Select Activity Credit Category:");
+            System.out.println("1. Sports Participation");
+            System.out.println("2. Sports Achievement");
+            System.out.println("3. Hackathon Participation");
+            System.out.println("4. Hackathon Winner");
+            System.out.println("5. Event Organizer");
+            System.out.println("6. Cultural Activity");
+            System.out.print("Enter choice : ");
+
+            String choice = sc.nextLine().trim();
+            switch (choice) {
+                case "1":
+                    return "Sports Participation";
+                case "2":
+                    return "Sports Achievement";
+                case "3":
+                    return "Hackathon Participation";
+                case "4":
+                    return "Hackathon Winner";
+                case "5":
+                    return "Event Organizer";
+                case "6":
+                    return "Cultural Activity";
+                default:
+                    System.out.println("  !! Please choose a number from 1 to 6.");
             }
         }
     }

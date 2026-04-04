@@ -24,6 +24,8 @@ public class Student {
     public String getBranch()  { return branch; }
     public String[] getSubjects() { return subjects.clone(); }
     public double[] getMarks() { return marks.clone(); }
+    public String getActivityInfo() { return "No activity credit"; }
+    public double getBonusMarks() { return 0.0; }
 
     // Calculate total marks
     public double getTotal() {
@@ -69,6 +71,8 @@ public class Student {
             System.out.printf("%-24s: %.2f%n", subjects[i], marks[i]);
         }
         System.out.println("--------------------------------------------------------------");
+        System.out.println("Activity   : " + getActivityInfo());
+        System.out.printf("Bonus Marks: %.2f%n", getBonusMarks());
         System.out.printf("Total      : %.2f%n", getTotal());
         System.out.printf("Percentage : %.2f%%%n", getPercentage());
         System.out.println("Grade      : " + getGrade());

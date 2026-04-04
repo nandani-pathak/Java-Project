@@ -21,6 +21,7 @@ java Main
 - Branch selection for `CSE`, `IT`, `AI/ML`, `ECE`, `MECH`, `CIVIL`, and `OTHER`
 - Subject-wise mark entry based on the selected branch
 - Individual student profile display with department and subject marks
+- Co-curricular activity credit for sports, hackathons, event organizers, and cultural activity
 - Separate topper for each department
 - Overall university topper across all BTech students
 - Summary table that looks like a central student database report
@@ -33,7 +34,7 @@ java Main
 ```
 Main.java                  <- Entry point and interactive data entry flow
 Student.java               <- Student model with branch and subjects
-HonoursStudent.java        <- Legacy class kept for compatibility
+ActivityStudent.java       <- Co-curricular activity credit model
 GradeManager.java          <- Department subjects, report, topper logic
 InvalidMarksException.java <- Custom exception
 ```
