@@ -1,12 +1,15 @@
 // ========================================
 // GradeManager.java - Core Logic
-// (Branch-specific subjects and topper logic)
+// (Branch-specific subjects, reports, and analytics)
 // ========================================
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class GradeManager {
 
-    private static final String[] CSE_SUBJECTS = { "Data Sturcture & Algorithm", "Programming in Java", "Theory of Computation", "Database and Management System" };
-    private static final String[] IT_SUBJECTS = { "Object Oriented Programming in CPP", "Computational Methods", "Discrete Mathematics", "Programming in C" };
+    private static final String[] CSE_SUBJECTS = { "Data Structure & Algorithm", "Programming in Java", "Theory of Computation", "Database Management System" };
+    private static final String[] IT_SUBJECTS = { "Object Oriented CPP", "Computational Methods", "Discrete Mathematics", "Programming in C" };
     private static final String[] AIML_SUBJECTS = { "Python", "Probability & Statistics", "Artificial Intelligence", "Machine Learning" };
     private static final String[] ECE_SUBJECTS = { "Digital Electronics", "Signals and Systems", "Network Theory", "Microprocessors" };
     private static final String[] MECH_SUBJECTS = { "Thermodynamics", "Fluid Mechanics", "Machine Design", "Manufacturing" };
@@ -43,51 +46,44 @@ public class GradeManager {
         return BRANCHES.clone();
     }
 
-    public static String generateReport(Student[] students) {
+    public static String generateReport(List<Student> students) {
         StringBuilder sb = new StringBuilder();
-        sb.append("\n\n========== CENTRAL STUDENT DATABASE REPORT ==========\n");
-        sb.append(String.format("%-10s %-18s %-10s %-20s %-8s %-8s%n",
-                "Roll No", "Name", "Branch", "Grade", "Percent", "Bonus"));
-        sb.append("----------------------------------------------------------------------------\n");
+        sb.append("\n========== CENTRAL STUDENT DATABASE REPORT ==========\n");
+        sb.append(String.format("%-10s %-18s %-10s %-9s %-8s %-20s %-8s%n",
+                "Roll No", "Name", "Branch", "Sem/Sec", "Percent", "Grade", "Bonus"));
+        sb.append("--------------------------------------------------------------------------------------\n");
 
         for (Student s : students) {
-            sb.append(String.format("%-10d %-18s %-10s %-20s %-8.1f %-8.1f%n",
+            sb.append(String.format("%-10d %-18s %-10s %-9s %-8.1f %-20s %-8.1f%n",
                     s.getRollNo(),
                     truncate(s.getName(), 18),
                     s.getBranch(),
-                    s.getGrade(),
+                    s.getSemester() + "/" + s.getSection(),
                     s.getPercentage(),
+                    truncate(s.getGrade(), 20),
                     s.getBonusMarks()));
         }
 
-        sb.append("----------------------------------------------------------------------------\n");
-        sb.append("Total Students: ").append(students.length);
+        sb.append("--------------------------------------------------------------------------------------\n");
+        sb.append("Total Students: ").append(students.size());
         return sb.toString();
     }
 
-    private static String truncate(String value, int maxLength) {
-        if (value.length() <= maxLength) {
-            return value;
-        }
-        return value.substring(0, maxLength - 3) + "...";
-    }
-
-    // Find topper using Control of Flow (Unit II: Control of Flow)
-    public static Student findTopper(Student[] students) {
-        if (students.length == 0) {
+    public static Student findTopper(List<Student> students) {
+        if (students.isEmpty()) {
             return null;
         }
 
-        Student topper = students[0];
-        for (int i = 1; i < students.length; i++) {
-            if (students[i].getPercentage() > topper.getPercentage()) {
-                topper = students[i];
+        Student topper = students.get(0);
+        for (int i = 1; i < students.size(); i++) {
+            if (students.get(i).getPercentage() > topper.getPercentage()) {
+                topper = students.get(i);
             }
         }
         return topper;
     }
 
-    public static Student findTopperByBranch(Student[] students, String branch) {
+    public static Student findTopperByBranch(List<Student> students, String branch) {
         Student topper = null;
         for (Student student : students) {
             if (!student.getBranch().equals(branch)) {
@@ -100,8 +96,7 @@ public class GradeManager {
         return topper;
     }
 
-    // Count students who passed (marks >= 50)
-    public static int countPassed(Student[] students) {
+    public static int countPassed(List<Student> students) {
         int count = 0;
         for (Student s : students) {
             if (s.getPercentage() >= 50) {
@@ -109,5 +104,70 @@ public class GradeManager {
             }
         }
         return count;
+    }
+
+    public static Student findByRollNo(List<Student> students, int rollNo) {
+        for (Student student : students) {
+            if (student.getRollNo() == rollNo) {
+                return student;
+            }
+        }
+        return null;
+    }
+
+    public static List<Student> filterByBranch(List<Student> students, String branch) {
+        List<Student> filtered = new ArrayList<>();
+        for (Student student : students) {
+            if (student.getBranch().equals(branch)) {
+                filtered.add(student);
+            }
+        }
+        return filtered;
+    }
+
+    public static double calculateAveragePercentage(List<Student> students) {
+        if (students.isEmpty()) {
+            return 0.0;
+        }
+        double total = 0;
+        for (Student student : students) {
+            total += student.getPercentage();
+        }
+        return total / students.size();
+    }
+
+    public static int countActivityCreditStudents(List<Student> students) {
+        int count = 0;
+        for (Student student : students) {
+            if (student.getBonusMarks() > 0) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    public static String generateDepartmentStatistics(List<Student> students) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("========== DEPARTMENT STATISTICS ==========\n");
+        for (String branch : BRANCHES) {
+            List<Student> branchStudents = filterByBranch(students, branch);
+            if (branchStudents.isEmpty()) {
+                continue;
+            }
+            sb.append(branch)
+                    .append(" -> Students: ").append(branchStudents.size())
+                    .append(", Avg %: ").append(String.format("%.2f", calculateAveragePercentage(branchStudents)))
+                    .append(", Passed: ").append(countPassed(branchStudents))
+                    .append(", Activity Credits: ").append(countActivityCreditStudents(branchStudents))
+                    .append("\n");
+        }
+        return sb.toString();
+    }
+
+    private static String truncate(String value, int maxLength) {
+        if (value.length() <= maxLength) {
+            return value;
+        }
+        return value.substring(0, maxLength - 3) + "...";
     }
 }

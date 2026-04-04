@@ -7,10 +7,9 @@ public class ActivityStudent extends Student {
     private final String activityCategory;
     private final double bonusMarks;
 
-    public ActivityStudent(String name, int rollNo, int semester, String section, String email,
-            String phone, int admissionYear, String branch, String[] subjects,
+    public ActivityStudent(String name, int rollNo, String branch, String[] subjects,
             double[] marks, String activityCategory, double bonusMarks) {
-        super(name, rollNo, semester, section, email, phone, admissionYear, branch, subjects, marks);
+        super(name, rollNo, branch, subjects, marks);
         this.activityCategory = activityCategory;
         this.bonusMarks = bonusMarks;
     }

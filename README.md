@@ -1,5 +1,5 @@
 # BTech Student Database System
-## Branch-wise Academic Record Management
+## Menu-Driven Academic Record Management
 
 ---
 
@@ -18,76 +18,47 @@ java Main
 
 ## Features
 
+- Menu-driven system for adding, viewing, searching, and analyzing student records
+- Detailed student profile with `semester`, `section`, `email`, `phone`, and `admission year`
 - Branch selection for `CSE`, `IT`, `AI/ML`, `ECE`, `MECH`, `CIVIL`, and `OTHER`
 - Subject-wise mark entry based on the selected branch
-- Individual student profile display with department and subject marks
-- Co-curricular activity credit for sports, hackathons, event organizers, and cultural activity
-- Separate topper for each department
-- Overall university topper across all BTech students
-- Summary table that looks like a central student database report
-- Input validation for roll numbers and marks
+- Co-curricular activity credit for sports, projects, hackathons, event organizers, and cultural activity
+- Department-wise toppers and overall university rank 1
+- Search by roll number and department-wise record viewing
+- Academic summary dashboard with averages, pass counts, and activity statistics
 
 ---
 
 ## Files
 
 ```
-Main.java                  <- Entry point and interactive data entry flow
-Student.java               <- Student model with branch and subjects
+Main.java                  <- Menu-driven entry point and interactive workflow
+Student.java               <- Student profile model with academic and contact details
 ActivityStudent.java       <- Co-curricular activity credit model
-GradeManager.java          <- Department subjects, report, topper logic
-InvalidMarksException.java <- Custom exception
+GradeManager.java          <- Reports, search, toppers, and department analytics
+InvalidMarksException.java <- Custom exception for invalid marks
 ```
 
 ---
 
-## Sample Run
+## Main Menu
 
-```
-How many students do you want to enter? 2
-
---- Student 1 ---
-Name       : Nikko
-Roll No    : 101
-Select Branch:
-1. CSE
-2. IT
-3. AI/ML
-4. OTHER
-Enter choice : 1
-Enter marks for CSE subjects:
-DSA : 88
-Java : 92
-OOPs : 79
-CPP : 81
-
---- Student 2 ---
-Name       : Rahul
-Roll No    : 102
-Select Branch:
-1. CSE
-2. IT
-3. AI/ML
-4. OTHER
-Enter choice : 3
-Enter marks for AI/ML subjects:
-Python : 75
-Probability : 80
-Artificial Intelligence : 85
-Machine Learning : 89
-
-CSE Topper : Nikko | Roll No: 101 | Percentage: 85.0%
-AI/ML Topper : Rahul | Roll No: 102 | Percentage: 82.3%
-UNIVERSITY RANK 1 : Nikko | Branch: CSE | Roll No: 101 | Percentage: 85.0%
-Passed : 2 / 2
+```text
+1. Add Student Record
+2. View All Student Records
+3. Search Student By Roll Number
+4. View Department Records
+5. Show Department Toppers
+6. Show University Rank 1
+7. Show Academic Summary Dashboard
+8. Exit
 ```
 
 ---
 
-## How to Explain to Your Teacher
+## Teacher Impression Points
 
-1. **Start with `Student.java`** - explain how branch, subjects, and marks are stored
-2. **Show `GradeManager.java`** - explain department-wise subjects and topper calculation
-3. **Show `InvalidMarksException.java`** - explain custom exception handling
-4. **Run `Main.java`** - show how the user selects a department and enters marks
-5. **Explain the output** - department toppers, university rank 1, and the central report are displayed
+- It behaves like a real mini college ERP instead of a single-run marks calculator.
+- It stores complete student identity and academic details together.
+- It supports both academic performance and co-curricular achievement.
+- It provides topper logic, search, filtering, and department-level analytics.
