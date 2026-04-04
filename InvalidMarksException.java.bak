@@ -1,10 +1,10 @@
 // ========================================
-// InvalidMarksException.java - Custom Exception (Unit II: User Defined Exceptions)
+// InvalidMarksException.java — Custom Exception (Unit II: User Defined Exceptions)
 // ========================================
 
 public class InvalidMarksException extends Exception {
 
-    private final double invalidValue;
+    private double invalidValue;
 
     public InvalidMarksException(double value) {
         super("Invalid marks entered: " + value + ". Marks must be between 0 and 100.");

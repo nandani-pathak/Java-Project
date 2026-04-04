@@ -1,5 +1,5 @@
 // ========================================
-// GradeManager.java - Core Logic
+// GradeManager.java — Core Logic
 // (Unit II: Wrapper Classes, StringBuffer, throw/throws, Logical Operators)
 // ========================================
 
@@ -10,19 +10,21 @@ public class GradeManager {
         double[] marks = new double[rawMarks.length];
 
         for (int i = 0; i < rawMarks.length; i++) {
-            double val = Double.parseDouble(rawMarks[i].trim());
+            // Wrapper class: String → double conversion
+            double val = Double.parseDouble(rawMarks[i]);
 
+            // Logical operator check (Unit II: Logical Operators)
             if (val < 0 || val > 100) {
-                throw new InvalidMarksException(val);
+                throw new InvalidMarksException(val); // throw clause (Unit II)
             }
             marks[i] = val;
         }
         return marks;
     }
 
-    // Generate a summary report using StringBuilder.
+    // Generate a summary report using StringBuffer (Unit II: StringBuffer)
     public static String generateReport(Student[] students) {
-        StringBuilder sb = new StringBuilder();
+        StringBuffer sb = new StringBuffer();
         sb.append("========== GRADE REPORT ==========\n");
 
         for (Student s : students) {
@@ -40,10 +42,6 @@ public class GradeManager {
 
     // Find topper using Control of Flow (Unit II: Control of Flow)
     public static Student findTopper(Student[] students) {
-        if (students.length == 0) {
-            return null;
-        }
-
         Student topper = students[0];
         for (int i = 1; i < students.length; i++) {
             if (students[i].getPercentage() > topper.getPercentage()) {
@@ -57,9 +55,7 @@ public class GradeManager {
     public static int countPassed(Student[] students) {
         int count = 0;
         for (Student s : students) {
-            if (s.getPercentage() >= 50) {
-                count++;
-            }
+            if (s.getPercentage() >= 50) count++;
         }
         return count;
     }

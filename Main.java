@@ -1,5 +1,5 @@
 // ========================================
-// Main.java — Entry Point
+// Main.java - Entry Point
 // (Ties together: Classes, Inheritance, Exceptions, Arrays, StringBuffer, Wrapper Classes)
 // ========================================
 
@@ -11,15 +11,13 @@ public class Main {
 
         Scanner sc = new Scanner(System.in);
 
-        System.out.println("╔══════════════════════════════════╗");
-        System.out.println("║        STUDENT GRADE MANAGER     ║");
-        System.out.println("║     Unit II — Java Fundamentals  ║");
-        System.out.println("╚══════════════════════════════════╝\n");
+        System.out.println("==================================");
+        System.out.println("      STUDENT GRADE MANAGER");
+        System.out.println("     Unit II - Java Fundamentals");
+        System.out.println("==================================\n");
 
-        System.out.print("How many students do you want to enter? ");
-        int n = Integer.parseInt(sc.nextLine().trim()); // Wrapper: String → int
-
-        Student[] students = new Student[n]; // Array of Student objects
+        int n = readStudentCount(sc);
+        Student[] students = new Student[n];
 
         for (int i = 0; i < n; i++) {
             System.out.println("\n--- Student " + (i + 1) + " ---");
@@ -28,12 +26,11 @@ public class Main {
             String name = sc.nextLine().trim();
 
             System.out.print("Roll No    : ");
-            int rollNo = Integer.parseInt(sc.nextLine().trim());
+            int rollNo = readInt(sc, "Please enter a valid roll number.");
 
             System.out.print("Is Honours student? (yes/no): ");
             boolean isHonours = sc.nextLine().trim().equalsIgnoreCase("yes");
 
-            // Input 3 subject marks
             double[] marks = null;
             while (marks == null) {
                 try {
@@ -45,44 +42,84 @@ public class Main {
                         continue;
                     }
 
-                    marks = GradeManager.validateAndParse(raw); // throws clause
+                    marks = GradeManager.validateAndParse(raw);
 
                 } catch (InvalidMarksException e) {
-                    // Catching user-defined exception (Unit II)
                     System.out.println("  !! Error: " + e.getMessage());
                 } catch (NumberFormatException e) {
-                    // Catching built-in exception (Unit II)
                     System.out.println("  !! Error: Please enter valid numbers only.");
                 }
             }
 
             if (isHonours) {
-                System.out.print("Enter bonus marks (e.g. 5): ");
-                double bonus = Double.parseDouble(sc.nextLine().trim());
+                double bonus = readDoubleInRange(sc, "Enter bonus marks (e.g. 5): ", 0, 10);
                 students[i] = new HonoursStudent(name, rollNo, marks, bonus);
             } else {
                 students[i] = new Student(name, rollNo, marks);
             }
         }
 
-        // Display all students
         System.out.println("\n\n========== INDIVIDUAL RESULTS ==========");
         for (Student s : students) {
-            s.display(); // Polymorphism: works for both Student and HonoursStudent
+            s.display();
         }
 
-        // Summary report using StringBuffer
         System.out.println("\n" + GradeManager.generateReport(students));
 
-        // Topper
-        Student topper = GradeManager.findTopper(students);
-        System.out.println("🏆 Topper: " + topper.getName() + " (" + String.format("%.1f", topper.getPercentage()) + "%)");
+        if (n > 0) {
+            Student topper = GradeManager.findTopper(students);
+            System.out.println("Topper : " + topper.getName() + " (" + String.format("%.1f", topper.getPercentage()) + "%)");
 
-        // Pass count
-        int passed = GradeManager.countPassed(students);
-        System.out.println("Passed : " + passed + " / " + n);
-        System.out.println("Failed : " + (n - passed) + " / " + n);
+            int passed = GradeManager.countPassed(students);
+            System.out.println("Passed : " + passed + " / " + n);
+            System.out.println("Failed : " + (n - passed) + " / " + n);
+        } else {
+            System.out.println("No students were entered.");
+        }
 
         sc.close();
+    }
+
+    private static int readStudentCount(Scanner sc) {
+        while (true) {
+            System.out.print("How many students do you want to enter? ");
+            try {
+                int count = Integer.parseInt(sc.nextLine().trim());
+                if (count < 0) {
+                    System.out.println("  !! Number of students cannot be negative.");
+                    continue;
+                }
+                return count;
+            } catch (NumberFormatException e) {
+                System.out.println("  !! Please enter a whole number.");
+            }
+        }
+    }
+
+    private static int readInt(Scanner sc, String errorMessage) {
+        while (true) {
+            try {
+                return Integer.parseInt(sc.nextLine().trim());
+            } catch (NumberFormatException e) {
+                System.out.println("  !! " + errorMessage);
+                System.out.print("Try again   : ");
+            }
+        }
+    }
+
+    private static double readDoubleInRange(Scanner sc, String prompt, double min, double max) {
+        while (true) {
+            System.out.print(prompt);
+            try {
+                double value = Double.parseDouble(sc.nextLine().trim());
+                if (value < min || value > max) {
+                    System.out.println("  !! Please enter a value between " + min + " and " + max + ".");
+                    continue;
+                }
+                return value;
+            } catch (NumberFormatException e) {
+                System.out.println("  !! Please enter a valid number.");
+            }
+        }
     }
 }
