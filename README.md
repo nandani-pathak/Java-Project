@@ -20,7 +20,7 @@ java Main
 
 - Menu-driven system for adding, viewing, searching, and analyzing student records
 - Detailed student profile with `semester`, `section`, `email`, `phone`, and `admission year`
-- Branch selection for `CSE`, `IT`, `AI/ML`, `ECE`, `MECH`, `CIVIL`, and `OTHER`
+- Branch selection for `CSE`, `IT`, `AI/ML`, `ECE`, `MECH` & `CIVIL`
 - Subject-wise mark entry based on the selected branch
 - Co-curricular activity credit for sports, projects, hackathons, event organizers, and cultural activity
 - Department-wise toppers and overall university rank 1
