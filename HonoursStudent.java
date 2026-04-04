@@ -7,7 +7,7 @@ public class HonoursStudent extends Student {
     private double bonusMarks; // Extra credit for honours students
 
     public HonoursStudent(String name, int rollNo, double[] marks, double bonusMarks) {
-        super(name, rollNo, marks); // Call parent constructor
+        super(name, rollNo, "OTHER", new String[] { "Subject 1", "Subject 2", "Subject 3", "Subject 4" }, marks);
         this.bonusMarks = bonusMarks;
     }
 

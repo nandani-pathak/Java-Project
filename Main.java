@@ -1,6 +1,6 @@
 // ========================================
 // Main.java - Entry Point
-// (Ties together: Classes, Inheritance, Exceptions, Arrays, StringBuffer, Wrapper Classes)
+// (Branch-aware BTech result processing)
 // ========================================
 
 import java.util.Scanner;
@@ -11,10 +11,7 @@ public class Main {
 
         Scanner sc = new Scanner(System.in);
 
-        System.out.println("==================================");
-        System.out.println("      STUDENT GRADE MANAGER");
-        System.out.println("     Unit II - Java Fundamentals");
-        System.out.println("==================================\n");
+        printHeader();
 
         int n = readStudentCount(sc);
         Student[] students = new Student[n];
@@ -28,38 +25,19 @@ public class Main {
             System.out.print("Roll No    : ");
             int rollNo = readInt(sc, "Please enter a valid roll number.");
 
-            System.out.print("Is Honours student? (yes/no): ");
-            boolean isHonours = sc.nextLine().trim().equalsIgnoreCase("yes");
+            String branch = readBranch(sc);
+            String[] subjects = GradeManager.getSubjectsForBranch(branch);
+            double[] marks = new double[subjects.length];
 
-            double[] marks = null;
-            while (marks == null) {
-                try {
-                    System.out.print("Enter marks for 3 subjects (comma separated, e.g. 78,85,90): ");
-                    String[] raw = sc.nextLine().trim().split(",");
-
-                    if (raw.length != 3) {
-                        System.out.println("  !! Please enter exactly 3 marks.");
-                        continue;
-                    }
-
-                    marks = GradeManager.validateAndParse(raw);
-
-                } catch (InvalidMarksException e) {
-                    System.out.println("  !! Error: " + e.getMessage());
-                } catch (NumberFormatException e) {
-                    System.out.println("  !! Error: Please enter valid numbers only.");
-                }
+            System.out.println("Enter marks for " + branch + " subjects:");
+            for (int j = 0; j < subjects.length; j++) {
+                marks[j] = readValidatedMark(sc, subjects[j]);
             }
 
-            if (isHonours) {
-                double bonus = readDoubleInRange(sc, "Enter bonus marks (e.g. 5): ", 0, 10);
-                students[i] = new HonoursStudent(name, rollNo, marks, bonus);
-            } else {
-                students[i] = new Student(name, rollNo, marks);
-            }
+            students[i] = new Student(name, rollNo, branch, subjects, marks);
         }
 
-        System.out.println("\n\n========== INDIVIDUAL RESULTS ==========");
+        System.out.println("\n\n========== STUDENT RECORDS ==========");
         for (Student s : students) {
             s.display();
         }
@@ -67,8 +45,22 @@ public class Main {
         System.out.println("\n" + GradeManager.generateReport(students));
 
         if (n > 0) {
+            System.out.println("\n========== DEPARTMENT TOPPERS ==========");
+            String[] branches = GradeManager.getAvailableBranches();
+            for (String branch : branches) {
+                Student branchTopper = GradeManager.findTopperByBranch(students, branch);
+                if (branchTopper != null) {
+                    System.out.println(branch + " Topper : " + branchTopper.getName()
+                            + " | Roll No: " + branchTopper.getRollNo()
+                            + " | Percentage: " + String.format("%.1f", branchTopper.getPercentage()) + "%");
+                }
+            }
+
             Student topper = GradeManager.findTopper(students);
-            System.out.println("Topper : " + topper.getName() + " (" + String.format("%.1f", topper.getPercentage()) + "%)");
+            System.out.println("\nUNIVERSITY RANK 1 : " + topper.getName()
+                    + " | Branch: " + topper.getBranch()
+                    + " | Roll No: " + topper.getRollNo()
+                    + " | Percentage: " + String.format("%.1f", topper.getPercentage()) + "%");
 
             int passed = GradeManager.countPassed(students);
             System.out.println("Passed : " + passed + " / " + n);
@@ -80,9 +72,17 @@ public class Main {
         sc.close();
     }
 
+    private static void printHeader() {
+        System.out.println("==============================================================");
+        System.out.println("               COLLEGE STUDENT DATABASE SYSTEM");
+        System.out.println("            BTECH ACADEMIC RECORD MANAGEMENT PORTAL");
+        System.out.println("==============================================================");
+        System.out.println("Available Departments: CSE, IT, AI/ML, ECE, MECH, CIVIL, OTHER\n");
+    }
+
     private static int readStudentCount(Scanner sc) {
         while (true) {
-            System.out.print("How many students do you want to enter? ");
+            System.out.print("Enter number of student records to create: ");
             try {
                 int count = Integer.parseInt(sc.nextLine().trim());
                 if (count < 0) {
@@ -107,16 +107,49 @@ public class Main {
         }
     }
 
-    private static double readDoubleInRange(Scanner sc, String prompt, double min, double max) {
+    private static String readBranch(Scanner sc) {
         while (true) {
-            System.out.print(prompt);
+            System.out.println("Select Department:");
+            System.out.println("1. CSE");
+            System.out.println("2. IT");
+            System.out.println("3. AI/ML");
+            System.out.println("4. ECE");
+            System.out.println("5. MECH");
+            System.out.println("6. CIVIL");
+            System.out.println("7. OTHER");
+            System.out.print("Enter choice : ");
+
+            String choice = sc.nextLine().trim();
+            switch (choice) {
+                case "1":
+                    return "CSE";
+                case "2":
+                    return "IT";
+                case "3":
+                    return "AI/ML";
+                case "4":
+                    return "ECE";
+                case "5":
+                    return "MECH";
+                case "6":
+                    return "CIVIL";
+                case "7":
+                    return "OTHER";
+                default:
+                    System.out.println("  !! Please choose a number from 1 to 7.");
+            }
+        }
+    }
+
+    private static double readValidatedMark(Scanner sc, String subjectName) {
+        while (true) {
+            System.out.print(subjectName + " : ");
             try {
                 double value = Double.parseDouble(sc.nextLine().trim());
-                if (value < min || value > max) {
-                    System.out.println("  !! Please enter a value between " + min + " and " + max + ".");
-                    continue;
-                }
+                GradeManager.validateMark(value);
                 return value;
+            } catch (InvalidMarksException e) {
+                System.out.println("  !! Error: " + e.getMessage());
             } catch (NumberFormatException e) {
                 System.out.println("  !! Please enter a valid number.");
             }

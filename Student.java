@@ -1,5 +1,5 @@
 // ========================================
-// Student.java - Base Class (Unit II: Classes, Inheritance, Encapsulation)
+// Student.java - BTech Student Model
 // ========================================
 
 public class Student {
@@ -7,18 +7,22 @@ public class Student {
     // Encapsulation: private fields
     private final String name;
     private final int rollNo;
-    private final double[] marks;  // Array of marks (Unit II: Arrays)
+    private final String branch;
+    private final String[] subjects;
+    private final double[] marks;
 
-    // Constructor
-    public Student(String name, int rollNo, double[] marks) {
+    public Student(String name, int rollNo, String branch, String[] subjects, double[] marks) {
         this.name = name;
         this.rollNo = rollNo;
+        this.branch = branch;
+        this.subjects = subjects.clone();
         this.marks = marks.clone();
     }
 
-    // Getters
     public String getName()    { return name; }
     public int getRollNo()     { return rollNo; }
+    public String getBranch()  { return branch; }
+    public String[] getSubjects() { return subjects.clone(); }
     public double[] getMarks() { return marks.clone(); }
 
     // Calculate total marks
@@ -53,11 +57,18 @@ public class Student {
         }
     }
 
-    // Display student info
     public void display() {
-        System.out.println("------------------------------");
+        System.out.println("--------------------------------------------------------------");
+        System.out.println("STUDENT PROFILE");
+        System.out.println("--------------------------------------------------------------");
         System.out.println("Name       : " + name);
         System.out.println("Roll No    : " + rollNo);
+        System.out.println("Department : " + branch);
+        System.out.println("Subject-wise Marks");
+        for (int i = 0; i < subjects.length; i++) {
+            System.out.printf("%-24s: %.2f%n", subjects[i], marks[i]);
+        }
+        System.out.println("--------------------------------------------------------------");
         System.out.printf("Total      : %.2f%n", getTotal());
         System.out.printf("Percentage : %.2f%%%n", getPercentage());
         System.out.println("Grade      : " + getGrade());

@@ -1,5 +1,5 @@
-# Student Grade Manager
-## Unit II - Java Fundamentals Project
+# BTech Student Database System
+## Branch-wise Academic Record Management
 
 ---
 
@@ -16,32 +16,25 @@ java Main
 
 ---
 
-## What This Project Covers (Unit II Syllabus)
+## Features
 
-| Concept               | Where Used                                      |
-|-----------------------|-------------------------------------------------|
-| Classes & Instances   | `Student.java` - fields, constructor, methods   |
-| Inheritance           | `HonoursStudent extends Student`                |
-| Method Overriding     | `getGrade()`, `display()` in HonoursStudent     |
-| Arrays                | `double[] marks` - stores subject marks         |
-| Wrapper Classes       | `Double.parseDouble()`, `Integer.parseInt()`    |
-| Arithmetic Operators  | total, percentage calculations                  |
-| Logical Operators     | `val < 0 || val > 100` in validation            |
-| Control of Flow       | `for` loops, `if-else` in grade/topper logic    |
-| throw & throws        | `InvalidMarksException` thrown in GradeManager  |
-| User Defined Exception| `InvalidMarksException.java`                    |
-| StringBuilder         | `generateReport()` builds the report string     |
-| Class Member Modifiers| `private`, `public`, `static` used throughout   |
+- Branch selection for `CSE`, `IT`, `AI/ML`, `ECE`, `MECH`, `CIVIL`, and `OTHER`
+- Subject-wise mark entry based on the selected branch
+- Individual student profile display with department and subject marks
+- Separate topper for each department
+- Overall university topper across all BTech students
+- Summary table that looks like a central student database report
+- Input validation for roll numbers and marks
 
 ---
 
 ## Files
 
 ```
-Main.java                  <- Entry point, runs everything
-Student.java               <- Base class
-HonoursStudent.java        <- Subclass (inheritance)
-GradeManager.java          <- Logic: validate, report, topper
+Main.java                  <- Entry point and interactive data entry flow
+Student.java               <- Student model with branch and subjects
+HonoursStudent.java        <- Legacy class kept for compatibility
+GradeManager.java          <- Department subjects, report, topper logic
 InvalidMarksException.java <- Custom exception
 ```
 
@@ -55,17 +48,36 @@ How many students do you want to enter? 2
 --- Student 1 ---
 Name       : Nikko
 Roll No    : 101
-Is Honours student? (yes/no): no
-Enter marks for 3 subjects: 88,92,79
+Select Branch:
+1. CSE
+2. IT
+3. AI/ML
+4. OTHER
+Enter choice : 1
+Enter marks for CSE subjects:
+DSA : 88
+Java : 92
+OOPs : 79
+CPP : 81
 
 --- Student 2 ---
 Name       : Rahul
 Roll No    : 102
-Is Honours student? (yes/no): yes
-Enter marks for 3 subjects: 75,80,85
-Enter bonus marks: 5
+Select Branch:
+1. CSE
+2. IT
+3. AI/ML
+4. OTHER
+Enter choice : 3
+Enter marks for AI/ML subjects:
+Python : 75
+Probability : 80
+Artificial Intelligence : 85
+Machine Learning : 89
 
-Topper : Rahul (86.7%)
+CSE Topper : Nikko | Roll No: 101 | Percentage: 85.0%
+AI/ML Topper : Rahul | Roll No: 102 | Percentage: 82.3%
+UNIVERSITY RANK 1 : Nikko | Branch: CSE | Roll No: 101 | Percentage: 85.0%
 Passed : 2 / 2
 ```
 
@@ -73,8 +85,8 @@ Passed : 2 / 2
 
 ## How to Explain to Your Teacher
 
-1. **Start with `Student.java`** - show encapsulation (private fields + getters)
-2. **Show `HonoursStudent.java`** - explain `extends` and `@Override`
-3. **Show `InvalidMarksException.java`** - user-defined exception extending `Exception`
-4. **Show `GradeManager.java`** - StringBuilder, throw/throws, logical operators
-5. **Run `Main.java`** - show the full flow live
+1. **Start with `Student.java`** - explain how branch, subjects, and marks are stored
+2. **Show `GradeManager.java`** - explain department-wise subjects and topper calculation
+3. **Show `InvalidMarksException.java`** - explain custom exception handling
+4. **Run `Main.java`** - show how the user selects a department and enters marks
+5. **Explain the output** - department toppers, university rank 1, and the central report are displayed
