@@ -192,6 +192,35 @@ public class Graph {
         // Interchange: Kashmere Gate Yellow <-> Blue (connecting point)
         addEdge(11, 64, 3);
 
+        // --- PINK LINE (Majlis Park to Lajpat Nagar segment) ---
+        addStation(75, "Majlis Park", "Pink");
+        addStation(76, "Azadpur (Pink)", "Pink");
+        addStation(77, "Netaji Subhash Place", "Pink");
+        addStation(78, "Rajouri Garden (Pink)", "Pink");
+        addStation(79, "Maya Puri", "Pink");
+        addStation(80, "Durgabai Deshmukh South Campus", "Pink");
+        addStation(81, "Lajpat Nagar", "Pink");
+
+        addEdge(75, 76, 2); addEdge(76, 77, 2); addEdge(77, 78, 3);
+        addEdge(78, 79, 2); addEdge(79, 80, 2); addEdge(80, 81, 3);
+
+        // Pink line interchanges
+        addEdge(5, 76, 0);   // Azadpur Yellow <-> Azadpur Pink
+        addEdge(55, 78, 0);  // Rajouri Garden Blue <-> Rajouri Garden Pink
+
+        // --- GREEN LINE (Kirti Nagar to Brigadier Hoshiar Singh segment) ---
+        addStation(82, "Satguru Ram Singh Marg", "Green");
+        addStation(83, "Ashok Park Main", "Green");
+        addStation(84, "Punjabi Bagh", "Green");
+        addStation(85, "Peeragarhi", "Green");
+        addStation(86, "Udyog Nagar", "Green");
+        addStation(87, "Maharaja Surajmal Stadium", "Green");
+        addStation(88, "Brigadier Hoshiar Singh", "Green");
+
+        addEdge(58, 82, 2); addEdge(82, 83, 2); addEdge(83, 84, 2);
+        addEdge(84, 85, 2); addEdge(85, 86, 2); addEdge(86, 87, 2);
+        addEdge(87, 88, 2);
+
         totalStations = stations.size();
     }
 
