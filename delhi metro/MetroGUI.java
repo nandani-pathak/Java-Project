@@ -409,23 +409,71 @@ public class MetroGUI extends JFrame implements ActionListener {
         sb.append("</div>");
 
         sb.append("<div style='padding:0 22px 10px 22px;'>");
-        sb.append("<div style='font-size:18px; font-weight:700; margin-bottom:12px;'>Simple Route Map</div>");
-        sb.append("<div style='padding:16px; background:#ffffff; border:1px solid #e1e8f2; border-radius:12px; line-height:2.0;'>");
+        sb.append("<div style='font-size:18px; font-weight:700; margin-bottom:12px;'>Metro Route Map</div>");
+        sb.append("<div style='padding:18px; background:#ffffff; border:1px solid #e1e8f2; border-radius:12px;'>");
+        sb.append("<div style='font-size:13px; color:#6b7b95; margin-bottom:14px;'>Connected route path with line colors and interchange markers</div>");
+        sb.append("<div style='white-space:nowrap; overflow-x:auto; padding-bottom:8px;'>");
+        sb.append("<table style='border-collapse:collapse;'><tr>");
         List<Integer> path = details.getPath();
         for (int i = 0; i < path.size(); i++) {
             String stationName = metroGraph.getStationName(path.get(i));
             String lineName = metroGraph.getStationLine(path.get(i));
-            String bg = getLineHex(lineName);
-            sb.append("<span style='display:inline-block; padding:6px 10px; margin:0 6px 8px 0; border-radius:999px; background:")
-                .append(bg)
-                .append("; color:#ffffff; font-size:12px; font-weight:700;'>")
+            String currentHex = getLineHex(lineName);
+            String markerLabel = "STOP";
+            String markerBg = currentHex;
+            String ring = currentHex;
+
+            if (i == 0) {
+                markerLabel = "START";
+                markerBg = "#1d9c5f";
+                ring = "#1d9c5f";
+            } else if (i == path.size() - 1) {
+                markerLabel = "END";
+                markerBg = "#d6594b";
+                ring = "#d6594b";
+            } else {
+                String previousLine = metroGraph.getStationLine(path.get(i - 1));
+                if (!previousLine.equals(lineName)) {
+                    markerLabel = "CHANGE";
+                    markerBg = "#a97900";
+                    ring = "#a97900";
+                }
+            }
+
+            sb.append("<td style='vertical-align:top; min-width:138px; text-align:center;'>");
+            sb.append("<div style='display:flex; flex-direction:column; align-items:center;'>");
+            sb.append("<div style='font-size:10px; font-weight:700; color:")
+                .append(markerBg)
+                .append("; letter-spacing:0.8px; margin-bottom:8px;'>")
+                .append(markerLabel)
+                .append("</div>");
+            sb.append("<div style='width:18px; height:18px; border-radius:50%; background:#ffffff; border:4px solid ")
+                .append(ring)
+                .append("; box-sizing:border-box;'></div>");
+            sb.append("<div style='margin-top:10px; font-size:12px; line-height:1.4; font-weight:600; color:#23324b; max-width:112px;'>")
                 .append(escapeHtml(stationName))
-                .append("</span>");
+                .append("</div>");
+            sb.append("<div style='margin-top:4px; font-size:11px; color:")
+                .append(currentHex)
+                .append("; font-weight:700;'>")
+                .append(escapeHtml(lineName))
+                .append("</div>");
+            sb.append("</div></td>");
+
             if (i < path.size() - 1) {
-                sb.append("<span style='display:inline-block; margin-right:6px; color:#7a8aa3; font-weight:700;'>&rarr;</span>");
+                String nextLine = metroGraph.getStationLine(path.get(i + 1));
+                String connectorHex = currentHex;
+                if (!lineName.equals(nextLine)) {
+                    connectorHex = "#a97900";
+                }
+                sb.append("<td style='min-width:74px; vertical-align:top; padding-top:30px;'>");
+                sb.append("<div style='height:6px; border-radius:999px; background:")
+                    .append(connectorHex)
+                    .append("; position:relative; top:15px;'></div>");
+                sb.append("</td>");
             }
         }
-        sb.append("</div></div>");
+        sb.append("</tr></table></div></div></div>");
 
         sb.append("<div style='padding:0 22px 14px 22px;'>");
         sb.append("<div style='font-size:18px; font-weight:700; margin-bottom:12px;'>Station Timeline</div>");
