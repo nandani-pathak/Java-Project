@@ -1,21 +1,6 @@
 # BTech Student Database System
 ## Menu-Driven Academic Record Management
 
----
-
-## How to Run in VS Code
-
-1. Open the project folder in VS Code
-2. Make sure you have the **Java Extension Pack** installed
-3. Open terminal and run:
-
-```bash
-javac *.java
-java Main
-```
-
----
-
 ## Features
 
 - Menu-driven system for adding, viewing, and searching student records
@@ -42,7 +27,7 @@ InvalidMarksException.java <- Custom exception for invalid marks
 
 ## Main Menu
 
-```text
+```
 1. Add Student Record
 2. View All Student Records
 3. Search Student By Roll Number
@@ -50,12 +35,3 @@ InvalidMarksException.java <- Custom exception for invalid marks
 5. Show University Rank 1
 6. Exit
 ```
-
----
-
-## Teacher Impression Points
-
-- It behaves like a real mini college ERP instead of a single-run marks calculator.
-- It stores complete student identity and academic details together.
-- It supports both academic performance and co-curricular achievement.
-- It provides topper logic, search, filtering, and department-level analytics.
