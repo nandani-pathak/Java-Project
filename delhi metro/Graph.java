@@ -6,6 +6,55 @@ import java.util.*;
 
 public class Graph {
 
+    public static class RouteDetails {
+        private final String sourceName;
+        private final String destinationName;
+        private final List<Integer> path;
+        private final int stops;
+        private final int fare;
+        private final int estimatedMinutes;
+        private final List<String> interchanges;
+
+        public RouteDetails(String sourceName, String destinationName, List<Integer> path,
+                            int stops, int fare, int estimatedMinutes, List<String> interchanges) {
+            this.sourceName = sourceName;
+            this.destinationName = destinationName;
+            this.path = path;
+            this.stops = stops;
+            this.fare = fare;
+            this.estimatedMinutes = estimatedMinutes;
+            this.interchanges = interchanges;
+        }
+
+        public String getSourceName() {
+            return sourceName;
+        }
+
+        public String getDestinationName() {
+            return destinationName;
+        }
+
+        public List<Integer> getPath() {
+            return path;
+        }
+
+        public int getStops() {
+            return stops;
+        }
+
+        public int getFare() {
+            return fare;
+        }
+
+        public int getEstimatedMinutes() {
+            return estimatedMinutes;
+        }
+
+        public List<String> getInterchanges() {
+            return interchanges;
+        }
+    }
+
     private int totalStations;
     private List<List<int[]>> adjList; // adjList[i] = list of {neighborId, weight}
     private Map<String, Integer> stationIndex; // station name -> id
@@ -224,5 +273,56 @@ public class Graph {
 
     public int getTotalStations() {
         return totalStations;
+    }
+
+    public String getStationLineByName(String stationName) {
+        int stationId = getStationId(stationName);
+        if (stationId == -1) {
+            return "Unknown";
+        }
+        return getStationLine(stationId);
+    }
+
+    public RouteDetails findRouteDetails(String sourceName, String destName) throws InvalidStationException {
+        int sourceId = getStationId(sourceName);
+        int destId = getStationId(destName);
+
+        if (sourceId == -1 || destId == -1) {
+            throw new InvalidStationException("Station not found in the network.");
+        }
+
+        int[][] result = dijkstra(sourceId);
+        int[] dist = result[0];
+        int[] prev = result[1];
+
+        if (dist[destId] == Integer.MAX_VALUE) {
+            throw new InvalidStationException("No route found between selected stations.");
+        }
+
+        List<Integer> path = getPath(prev, destId);
+        int stops = Math.max(path.size() - 1, 0);
+        int fare = calculateFare(stops);
+        List<String> interchanges = new ArrayList<>();
+
+        for (int i = 1; i < path.size(); i++) {
+            String previousLine = getStationLine(path.get(i - 1));
+            String currentLine = getStationLine(path.get(i));
+            if (!previousLine.equals(currentLine)) {
+                String stationName = getStationName(path.get(i - 1));
+                interchanges.add(stationName + ": " + previousLine + " -> " + currentLine);
+            }
+        }
+
+        int estimatedMinutes = stops * 2 + (interchanges.size() * 4);
+
+        return new RouteDetails(
+            sourceName,
+            destName,
+            path,
+            stops,
+            fare,
+            estimatedMinutes,
+            interchanges
+        );
     }
 }
