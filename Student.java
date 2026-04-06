@@ -8,21 +8,16 @@ public class Student {
     private final int rollNo;
     private final int semester;
     private final String section;
-    private final String email;
-    private final String phone;
     private final int admissionYear;
     private final String branch;
     private final String[] subjects;
     private final double[] marks;
 
-    public Student(String name, int rollNo, int semester, String section, String email,
-            String phone, int admissionYear, String branch, String[] subjects, double[] marks) {
+    public Student(String name, int rollNo, int semester, String section, int admissionYear, String branch, String[] subjects, double[] marks) {
         this.name = name;
         this.rollNo = rollNo;
         this.semester = semester;
         this.section = section;
-        this.email = email;
-        this.phone = phone;
         this.admissionYear = admissionYear;
         this.branch = branch;
         this.subjects = subjects.clone();
@@ -33,8 +28,6 @@ public class Student {
     public int getRollNo() { return rollNo; }
     public int getSemester() { return semester; }
     public String getSection() { return section; }
-    public String getEmail() { return email; }
-    public String getPhone() { return phone; }
     public int getAdmissionYear() { return admissionYear; }
     public String getBranch() { return branch; }
     public String[] getSubjects() { return subjects.clone(); }
@@ -79,8 +72,6 @@ public class Student {
         System.out.println("Roll No    : " + rollNo);
         System.out.println("Semester   : " + semester);
         System.out.println("Section    : " + section);
-        System.out.println("Email      : " + email);
-        System.out.println("Phone      : " + phone);
         System.out.println("Admission  : " + admissionYear);
         System.out.println("Department : " + branch);
         System.out.println("Subject-wise Marks");

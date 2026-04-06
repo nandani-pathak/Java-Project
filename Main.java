@@ -61,7 +61,7 @@ public class Main {
         System.out.println("==============================================================");
         System.out.println("Available Departments: CSE, IT, AI/ML, ECE, MECH, CIVIL, OTHER");
         System.out.println("Co-curricular Credits: Sports, Hackathons, Event Leadership, Culture");
-        System.out.println("Profile Fields: Semester, Section, Email, Phone, Admission Year\n");
+        System.out.println("Profile Fields: Semester, Section, Admission Year\n");
     }
 
     private static void printMenu() {
@@ -92,12 +92,6 @@ public class Main {
         System.out.print("Section        : ");
         String section = readNonEmpty(sc, "Section cannot be empty.").toUpperCase();
 
-        System.out.print("Email          : ");
-        String email = readEmail(sc);
-
-        System.out.print("Phone          : ");
-        String phone = readPhone(sc);
-
         System.out.print("Admission Year : ");
         int admissionYear = readPositiveIntInRange(sc, 2000, 2100, "Please enter a valid admission year.");
 
@@ -114,10 +108,10 @@ public class Main {
         if (readYesNo(sc, "Did the student earn co-curricular activity credit? (yes/no): ")) {
             String activityCategory = readActivityCategory(sc);
             double bonusMarks = ActivityStudent.getBonusMarksForCategory(activityCategory);
-            student = new ActivityStudent(name, rollNo, semester, section, email, phone, admissionYear,
+            student = new ActivityStudent(name, rollNo, semester, section, admissionYear,
                     branch, subjects, marks, activityCategory, bonusMarks);
         } else {
-            student = new Student(name, rollNo, semester, section, email, phone, admissionYear,
+            student = new Student(name, rollNo, semester, section, admissionYear,
                     branch, subjects, marks);
         }
 
@@ -266,28 +260,6 @@ public class Main {
                 return value;
             }
             System.out.println("  !! " + errorMessage);
-            System.out.print("Try again   : ");
-        }
-    }
-
-    private static String readEmail(Scanner sc) {
-        while (true) {
-            String email = readNonEmpty(sc, "Email cannot be empty.");
-            if (email.contains("@") && email.contains(".")) {
-                return email;
-            }
-            System.out.println("  !! Please enter a valid email address.");
-            System.out.print("Try again   : ");
-        }
-    }
-
-    private static String readPhone(Scanner sc) {
-        while (true) {
-            String phone = readNonEmpty(sc, "Phone cannot be empty.");
-            if (phone.matches("\\d{10}")) {
-                return phone;
-            }
-            System.out.println("  !! Please enter a 10-digit phone number.");
             System.out.print("Try again   : ");
         }
     }

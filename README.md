@@ -19,7 +19,7 @@ java Main
 ## Features
 
 - Menu-driven system for adding, viewing, searching, and analyzing student records
-- Detailed student profile with `semester`, `section`, `email`, `phone`, and `admission year`
+- Detailed student profile with `semester`, `section`, and `admission year`
 - Branch selection for `CSE`, `IT`, `AI/ML`, `ECE`, `MECH` & `CIVIL`
 - Subject-wise mark entry based on the selected branch
 - Co-curricular activity credit for sports, projects, hackathons, event organizers, and cultural activity
@@ -33,7 +33,7 @@ java Main
 
 ```
 Main.java                  <- Menu-driven entry point and interactive workflow
-Student.java               <- Student profile model with academic and contact details
+Student.java               <- Student profile model with academic details
 ActivityStudent.java       <- Co-curricular activity credit model
 GradeManager.java          <- Reports, search, toppers, and department analytics
 InvalidMarksException.java <- Custom exception for invalid marks
