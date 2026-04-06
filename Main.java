@@ -31,23 +31,17 @@ public class Main {
                     searchByRollNo(sc, students);
                     break;
                 case 4:
-                    showDepartmentRecords(sc, students);
-                    break;
-                case 5:
                     showDepartmentToppers(students);
                     break;
-                case 6:
+                case 5:
                     showUniversityTopper(students);
                     break;
-                case 7:
-                    showAcademicSummary(students);
-                    break;
-                case 8:
+                case 6:
                     running = false;
                     System.out.println("\nThank you for using the College Student Database System.");
                     break;
                 default:
-                    System.out.println("  !! Please choose a menu option from 1 to 8.");
+                    System.out.println("  !! Please choose a menu option from 1 to 6.");
             }
         }
 
@@ -69,11 +63,9 @@ public class Main {
         System.out.println("1. Add Student Record");
         System.out.println("2. View All Student Records");
         System.out.println("3. Search Student By Roll Number");
-        System.out.println("4. View Department Records");
-        System.out.println("5. Show Department Toppers");
-        System.out.println("6. Show University Rank 1");
-        System.out.println("7. Show Academic Summary Dashboard");
-        System.out.println("8. Exit");
+        System.out.println("4. Show Department Toppers");
+        System.out.println("5. Show University Rank 1");
+        System.out.println("6. Exit");
         System.out.print("Enter choice : ");
     }
 
@@ -151,26 +143,6 @@ public class Main {
         student.display();
     }
 
-    private static void showDepartmentRecords(Scanner sc, List<Student> students) {
-        if (students.isEmpty()) {
-            System.out.println("\nNo student records found.");
-            return;
-        }
-
-        String branch = readBranch(sc);
-        List<Student> branchStudents = GradeManager.filterByBranch(students, branch);
-        if (branchStudents.isEmpty()) {
-            System.out.println("\nNo records found for " + branch + " department.");
-            return;
-        }
-
-        System.out.println("\n========== " + branch + " DEPARTMENT RECORDS ==========");
-        for (Student student : branchStudents) {
-            student.display();
-        }
-        System.out.println(GradeManager.generateReport(branchStudents));
-    }
-
     private static void showDepartmentToppers(List<Student> students) {
         if (students.isEmpty()) {
             System.out.println("\nNo student records found.");
@@ -198,24 +170,6 @@ public class Main {
         Student topper = GradeManager.findTopper(students);
         System.out.println("\n========== UNIVERSITY RANK 1 ==========");
         topper.display();
-    }
-
-    private static void showAcademicSummary(List<Student> students) {
-        if (students.isEmpty()) {
-            System.out.println("\nNo student records found.");
-            return;
-        }
-
-        System.out.println("\n========== ACADEMIC SUMMARY DASHBOARD ==========");
-        System.out.println("Total Students      : " + students.size());
-        System.out.println("Passed              : " + GradeManager.countPassed(students));
-        System.out.println("Failed              : " + (students.size() - GradeManager.countPassed(students)));
-        System.out.println("Average Percentage  : " + String.format("%.2f", GradeManager.calculateAveragePercentage(students)) + "%");
-        System.out.println("Activity Credits    : " + GradeManager.countActivityCreditStudents(students));
-        System.out.println();
-        showDepartmentToppers(students);
-        System.out.println();
-        System.out.println(GradeManager.generateDepartmentStatistics(students));
     }
 
     private static int readInt(Scanner sc, String errorMessage) {
