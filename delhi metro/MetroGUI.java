@@ -124,7 +124,7 @@ public class MetroGUI extends JFrame implements ActionListener {
 
     private JPanel buildControlsPanel() {
         JPanel controlsPanel = createPanel(PANEL_BG, new BorderLayout(), new EmptyBorder(24, 24, 24, 24));
-        controlsPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 240));
+        controlsPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 300));
 
         JLabel heading = new JLabel("Choose Stations");
         heading.setForeground(TEXT_PRIMARY);
@@ -141,11 +141,14 @@ public class MetroGUI extends JFrame implements ActionListener {
 
         JPanel fields = new JPanel(new GridLayout(1, 2, 18, 0));
         fields.setOpaque(false);
+        fields.setMaximumSize(new Dimension(Integer.MAX_VALUE, 86));
         fields.add(createFieldBlock("From", sourceDropdown));
         fields.add(createFieldBlock("To", destinationDropdown));
 
         JPanel buttons = new JPanel(new GridLayout(1, 3, 12, 0));
         buttons.setOpaque(false);
+        buttons.setPreferredSize(new Dimension(0, 52));
+        buttons.setMaximumSize(new Dimension(Integer.MAX_VALUE, 52));
         swapBtn = createButton("Swap", new Color(250, 240, 211), TEXT_DARK);
         findRouteBtn = createButton("Find Route", ACCENT, new Color(7, 22, 36));
         clearBtn = createButton("Reset", new Color(255, 232, 228), new Color(136, 42, 36));
