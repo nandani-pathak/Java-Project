@@ -236,7 +236,7 @@ public class MetroGUI extends JFrame implements ActionListener {
         content.setOpaque(false);
 
         routeMapPanel = new RouteMapPanel();
-        routeMapPanel.setPreferredSize(new Dimension(560, 320));
+        routeMapPanel.setPreferredSize(new Dimension(560, 560));
 
         resultArea = new JTextArea();
         resultArea.setEditable(false);
@@ -581,22 +581,16 @@ public class MetroGUI extends JFrame implements ActionListener {
                 return;
             }
 
-            int innerWidth = getWidth() - 110;
-            int startX = 52;
-            int startY = 80;
-            int nodesPerRow = Math.max(4, Math.min(5, routePath.size()));
-            int rowGap = 128;
-            int stepX = Math.max(96, innerWidth / Math.max(nodesPerRow - 1, 1));
+            int lineX = 120;
+            int startY = 64;
+            int bottomPadding = 40;
+            int availableHeight = Math.max(getHeight() - startY - bottomPadding, 120);
+            int stepY = routePath.size() == 1 ? 0 : availableHeight / (routePath.size() - 1);
 
             List<Point> points = new ArrayList<>();
             for (int i = 0; i < routePath.size(); i++) {
-                int row = i / nodesPerRow;
-                int col = i % nodesPerRow;
-                boolean reverse = row % 2 == 1;
-                int effectiveCol = reverse ? (nodesPerRow - 1 - col) : col;
-                int x = startX + Math.min(effectiveCol, nodesPerRow - 1) * stepX;
-                int y = startY + row * rowGap;
-                points.add(new Point(x, y));
+                int y = startY + (i * stepY);
+                points.add(new Point(lineX, y));
             }
 
             for (int i = 0; i < points.size() - 1; i++) {
@@ -610,15 +604,7 @@ public class MetroGUI extends JFrame implements ActionListener {
                 }
                 g2.setColor(connectorColor);
                 g2.setStroke(new BasicStroke(6f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-
-                if (p1.y == p2.y) {
-                    g2.drawLine(p1.x, p1.y, p2.x, p2.y);
-                } else {
-                    int midY = p1.y + (p2.y - p1.y) / 2;
-                    g2.drawLine(p1.x, p1.y, p1.x, midY);
-                    g2.drawLine(p1.x, midY, p2.x, midY);
-                    g2.drawLine(p2.x, midY, p2.x, p2.y);
-                }
+                g2.drawLine(p1.x, p1.y, p2.x, p2.y);
             }
 
             for (int i = 0; i < points.size(); i++) {
@@ -646,11 +632,15 @@ public class MetroGUI extends JFrame implements ActionListener {
 
                 g2.setColor(TEXT_DARK);
                 g2.setFont(new Font("Segoe UI", Font.BOLD, 11));
-                int labelWidth = 104;
-                int row = i / nodesPerRow;
-                boolean placeAbove = row % 2 == 1;
-                int labelY = placeAbove ? point.y - 58 : point.y + 28;
-                drawCenteredWrappedText(g2, stationName, point.x, labelY, labelWidth, 2);
+                drawWrappedLeftText(g2, stationName, point.x + 28, point.y - 8, 180, 2);
+
+                if (isInterchange(i) && i > 0 && i < points.size() - 1) {
+                    g2.setColor(new Color(255, 248, 225));
+                    g2.fillRoundRect(point.x + 220, point.y - 12, 78, 22, 10, 10);
+                    g2.setColor(YELLOW.darker());
+                    g2.setFont(new Font("Segoe UI", Font.BOLD, 11));
+                    g2.drawString("CHANGE", point.x + 233, point.y + 3);
+                }
             }
 
             g2.dispose();
@@ -666,7 +656,7 @@ public class MetroGUI extends JFrame implements ActionListener {
             return !previous.equals(current) || !current.equals(next);
         }
 
-        private void drawCenteredWrappedText(Graphics2D g2, String text, int centerX, int y, int maxWidth, int maxLines) {
+        private void drawWrappedLeftText(Graphics2D g2, String text, int x, int y, int maxWidth, int maxLines) {
             FontMetrics fm = g2.getFontMetrics();
             String[] words = text.split(" ");
             List<String> lines = new ArrayList<>();
@@ -701,8 +691,7 @@ public class MetroGUI extends JFrame implements ActionListener {
             int lineHeight = fm.getHeight();
             for (int i = 0; i < lines.size(); i++) {
                 String line = lines.get(i);
-                int width = fm.stringWidth(line);
-                g2.drawString(line, centerX - width / 2, y + (i * lineHeight));
+                g2.drawString(line, x, y + (i * lineHeight));
             }
         }
     }
