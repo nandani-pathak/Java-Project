@@ -582,11 +582,11 @@ public class MetroGUI extends JFrame implements ActionListener {
             }
 
             int innerWidth = getWidth() - 110;
-            int startX = 42;
-            int startY = 66;
+            int startX = 52;
+            int startY = 80;
             int nodesPerRow = Math.max(4, Math.min(5, routePath.size()));
-            int rowGap = 108;
-            int stepX = Math.max(86, innerWidth / Math.max(nodesPerRow - 1, 1));
+            int rowGap = 128;
+            int stepX = Math.max(96, innerWidth / Math.max(nodesPerRow - 1, 1));
 
             List<Point> points = new ArrayList<>();
             for (int i = 0; i < routePath.size(); i++) {
@@ -646,9 +646,10 @@ public class MetroGUI extends JFrame implements ActionListener {
 
                 g2.setColor(TEXT_DARK);
                 g2.setFont(new Font("Segoe UI", Font.BOLD, 11));
-                int labelWidth = 98;
-                boolean placeAbove = shouldPlaceLabelAbove(i, points);
-                int labelY = placeAbove ? point.y - 40 : point.y + 30;
+                int labelWidth = 104;
+                int row = i / nodesPerRow;
+                boolean placeAbove = row % 2 == 1;
+                int labelY = placeAbove ? point.y - 58 : point.y + 28;
                 drawCenteredWrappedText(g2, stationName, point.x, labelY, labelWidth, 2);
             }
 
@@ -663,21 +664,6 @@ public class MetroGUI extends JFrame implements ActionListener {
             String current = metroGraph.getStationLine(routePath.get(index));
             String next = metroGraph.getStationLine(routePath.get(index + 1));
             return !previous.equals(current) || !current.equals(next);
-        }
-
-        private boolean shouldPlaceLabelAbove(int index, List<Point> points) {
-            Point point = points.get(index);
-            if (point.y > getHeight() - 90) {
-                return true;
-            }
-            if (index == 0) {
-                return false;
-            }
-            Point previous = points.get(index - 1);
-            if (previous.y != point.y) {
-                return true;
-            }
-            return index % 2 == 1 && point.y > 120;
         }
 
         private void drawCenteredWrappedText(Graphics2D g2, String text, int centerX, int y, int maxWidth, int maxLines) {
