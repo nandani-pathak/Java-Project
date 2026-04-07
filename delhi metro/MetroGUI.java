@@ -586,7 +586,7 @@ public class MetroGUI extends JFrame implements ActionListener {
                 return;
             }
 
-            int lineX = 132;
+            int lineX = 148;
             int startY = 74;
             int bottomPadding = 56;
             int availableHeight = Math.max(getHeight() - startY - bottomPadding, 120);
@@ -626,18 +626,18 @@ public class MetroGUI extends JFrame implements ActionListener {
 
                 if (i == 0 || i == points.size() - 1) {
                     g2.setColor(new Color(255, 255, 255, 210));
-                    g2.fillRoundRect(point.x - 30, point.y - 40, 60, 18, 10, 10);
+                    g2.fillRoundRect(point.x - 22, point.y - 38, 60, 18, 10, 10);
                     g2.setColor(i == 0 ? SUCCESS.darker() : WARNING.darker());
                     String tag = i == 0 ? "START" : "END";
                     g2.setFont(new Font("Segoe UI", Font.BOLD, 10));
                     FontMetrics tagMetrics = g2.getFontMetrics();
                     int tagWidth = tagMetrics.stringWidth(tag);
-                    g2.drawString(tag, point.x - tagWidth / 2, point.y - 27);
+                    g2.drawString(tag, point.x + 8 - tagWidth / 2, point.y - 25);
                 }
 
                 g2.setColor(TEXT_DARK);
                 g2.setFont(new Font("Segoe UI", Font.BOLD, 11));
-                drawWrappedLeftText(g2, stationName, point.x + 34, point.y - 10, 220, 2);
+                drawWrappedLeftText(g2, stationName, point.x + 26, point.y - 10, 220, 2);
             }
 
             g2.dispose();
