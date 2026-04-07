@@ -239,7 +239,7 @@ public class MetroGUI extends JFrame implements ActionListener {
         content.setOpaque(false);
 
         routeMapPanel = new RouteMapPanel();
-        routeMapPanel.setPreferredSize(new Dimension(560, 560));
+        routeMapPanel.setPreferredSize(new Dimension(560, 760));
 
         resultArea = new JTextArea();
         resultArea.setEditable(false);
@@ -584,9 +584,9 @@ public class MetroGUI extends JFrame implements ActionListener {
                 return;
             }
 
-            int lineX = 120;
-            int startY = 64;
-            int bottomPadding = 40;
+            int lineX = 132;
+            int startY = 74;
+            int bottomPadding = 56;
             int availableHeight = Math.max(getHeight() - startY - bottomPadding, 120);
             int stepY = routePath.size() == 1 ? 0 : availableHeight / (routePath.size() - 1);
 
@@ -635,14 +635,14 @@ public class MetroGUI extends JFrame implements ActionListener {
 
                 g2.setColor(TEXT_DARK);
                 g2.setFont(new Font("Segoe UI", Font.BOLD, 11));
-                drawWrappedLeftText(g2, stationName, point.x + 28, point.y - 8, 180, 2);
+                drawWrappedLeftText(g2, stationName, point.x + 34, point.y - 10, 220, 2);
 
                 if (isInterchange(i) && i > 0 && i < points.size() - 1) {
                     g2.setColor(new Color(255, 248, 225));
-                    g2.fillRoundRect(point.x + 220, point.y - 12, 78, 22, 10, 10);
+                    g2.fillRoundRect(point.x + 290, point.y - 12, 78, 22, 10, 10);
                     g2.setColor(YELLOW.darker());
                     g2.setFont(new Font("Segoe UI", Font.BOLD, 11));
-                    g2.drawString("CHANGE", point.x + 233, point.y + 3);
+                    g2.drawString("CHANGE", point.x + 303, point.y + 3);
                 }
             }
 
