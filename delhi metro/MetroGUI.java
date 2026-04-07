@@ -209,7 +209,7 @@ public class MetroGUI extends JFrame implements ActionListener {
         JLabel mapTitle = new JLabel("Visual Route Map");
         mapTitle.setForeground(TEXT_PRIMARY);
         mapTitle.setFont(new Font("Segoe UI Semibold", Font.BOLD, 22));
-        JLabel mapCopy = new JLabel("Actual route drawing with line colors, station nodes, and interchange markers.");
+        JLabel mapCopy = new JLabel("Actual route drawing with station nodes and interchange markers.");
         mapCopy.setForeground(TEXT_MUTED);
         mapCopy.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         mapTitlePanel.add(mapTitle);
@@ -222,7 +222,7 @@ public class MetroGUI extends JFrame implements ActionListener {
         JLabel infoTitle = new JLabel("Route Notes");
         infoTitle.setForeground(TEXT_PRIMARY);
         infoTitle.setFont(new Font("Segoe UI Semibold", Font.BOLD, 22));
-        JLabel infoCopy = new JLabel("Simple station-by-station details you can explain in your demo.");
+        JLabel infoCopy = new JLabel("Simple station-by-station details for the selected route.");
         infoCopy.setForeground(TEXT_MUTED);
         infoCopy.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         infoTitlePanel.add(infoTitle);
@@ -436,10 +436,6 @@ public class MetroGUI extends JFrame implements ActionListener {
             }
         }
 
-        sb.append("\nHow to explain this in demo:\n");
-        sb.append("1. User selects two stations.\n");
-        sb.append("2. Dijkstra's algorithm finds the shortest route.\n");
-        sb.append("3. Java Swing draws the route map and trip details.\n");
         return sb.toString();
     }
 
@@ -470,12 +466,7 @@ public class MetroGUI extends JFrame implements ActionListener {
         routeMapPanel.clearRoute();
         resultArea.setText(
             "Select source and destination stations, then click 'Find Route'.\n\n"
-                + "What your teacher can easily understand here:\n"
-                + "- Java Swing based interface\n"
-                + "- Graph representation of Delhi Metro\n"
-                + "- Dijkstra's algorithm for shortest path\n"
-                + "- Custom Java drawing for route map visualization\n"
-                + "- Fare and interchange calculation\n"
+                + "The selected route details will appear here.\n"
         );
         resultArea.setCaretPosition(0);
     }
@@ -524,7 +515,7 @@ public class MetroGUI extends JFrame implements ActionListener {
         private final JLabel valueLabel;
 
         MetricCard(String title, Color accentColor) {
-            setLayout(new BorderLayout(0, 10));
+            setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
             setBackground(new Color(11, 24, 44));
             setBorder(new CompoundBorder(
                 new LineBorder(new Color(accentColor.getRed(), accentColor.getGreen(), accentColor.getBlue(), 115), 1, true),
@@ -534,13 +525,17 @@ public class MetroGUI extends JFrame implements ActionListener {
             JLabel titleLabel = new JLabel(title);
             titleLabel.setForeground(TEXT_MUTED);
             titleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+            titleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
             valueLabel = new JLabel("--");
             valueLabel.setForeground(accentColor);
-            valueLabel.setFont(new Font("Segoe UI Semibold", Font.BOLD, 20));
+            valueLabel.setFont(new Font("Segoe UI Semibold", Font.BOLD, 18));
+            valueLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-            add(titleLabel, BorderLayout.NORTH);
-            add(valueLabel, BorderLayout.CENTER);
+            add(titleLabel);
+            add(Box.createVerticalStrut(12));
+            add(valueLabel);
+            add(Box.createVerticalGlue());
         }
 
         void setValue(String value) {
@@ -586,12 +581,12 @@ public class MetroGUI extends JFrame implements ActionListener {
                 return;
             }
 
-            int innerWidth = getWidth() - 80;
-            int startX = 34;
+            int innerWidth = getWidth() - 110;
+            int startX = 42;
             int startY = 66;
-            int nodesPerRow = Math.max(4, Math.min(6, routePath.size()));
-            int rowGap = 116;
-            int stepX = Math.max(92, innerWidth / Math.max(nodesPerRow - 1, 1));
+            int nodesPerRow = Math.max(4, Math.min(5, routePath.size()));
+            int rowGap = 108;
+            int stepX = Math.max(86, innerWidth / Math.max(nodesPerRow - 1, 1));
 
             List<Point> points = new ArrayList<>();
             for (int i = 0; i < routePath.size(); i++) {
@@ -651,17 +646,9 @@ public class MetroGUI extends JFrame implements ActionListener {
 
                 g2.setColor(TEXT_DARK);
                 g2.setFont(new Font("Segoe UI", Font.BOLD, 11));
-                int labelWidth = 92;
-                int labelY = point.y + 28;
-
-                if (point.y + 72 > getHeight() - 18) {
-                    labelY = point.y - 56;
-                }
-
-                if (i > 0 && points.get(i - 1).y != point.y) {
-                    labelY = point.y + 28;
-                }
-
+                int labelWidth = 98;
+                boolean placeAbove = shouldPlaceLabelAbove(i, points);
+                int labelY = placeAbove ? point.y - 40 : point.y + 30;
                 drawCenteredWrappedText(g2, stationName, point.x, labelY, labelWidth, 2);
             }
 
@@ -676,6 +663,21 @@ public class MetroGUI extends JFrame implements ActionListener {
             String current = metroGraph.getStationLine(routePath.get(index));
             String next = metroGraph.getStationLine(routePath.get(index + 1));
             return !previous.equals(current) || !current.equals(next);
+        }
+
+        private boolean shouldPlaceLabelAbove(int index, List<Point> points) {
+            Point point = points.get(index);
+            if (point.y > getHeight() - 90) {
+                return true;
+            }
+            if (index == 0) {
+                return false;
+            }
+            Point previous = points.get(index - 1);
+            if (previous.y != point.y) {
+                return true;
+            }
+            return index % 2 == 1 && point.y > 120;
         }
 
         private void drawCenteredWrappedText(Graphics2D g2, String text, int centerX, int y, int maxWidth, int maxLines) {
