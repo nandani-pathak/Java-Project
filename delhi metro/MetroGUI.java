@@ -324,19 +324,6 @@ public class MetroGUI extends JFrame implements ActionListener {
         return button;
     }
 
-    private JLabel createBadge(String text, Color badgeColor) {
-        JLabel badge = new JLabel(text);
-        badge.setOpaque(true);
-        badge.setBackground(new Color(badgeColor.getRed(), badgeColor.getGreen(), badgeColor.getBlue(), 30));
-        badge.setForeground(badgeColor);
-        badge.setBorder(new CompoundBorder(
-            new LineBorder(new Color(badgeColor.getRed(), badgeColor.getGreen(), badgeColor.getBlue(), 110), 1, true),
-            new EmptyBorder(8, 14, 8, 14)
-        ));
-        badge.setFont(new Font("Segoe UI Semibold", Font.BOLD, 12));
-        return badge;
-    }
-
     private JPanel createLegendRow(String text, Color swatchColor) {
         JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         row.setOpaque(false);
