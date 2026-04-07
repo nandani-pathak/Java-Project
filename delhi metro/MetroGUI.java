@@ -586,12 +586,12 @@ public class MetroGUI extends JFrame implements ActionListener {
                 return;
             }
 
-            int innerWidth = getWidth() - 50;
-            int startX = 28;
-            int startY = 54;
+            int innerWidth = getWidth() - 80;
+            int startX = 34;
+            int startY = 66;
             int nodesPerRow = Math.max(4, Math.min(6, routePath.size()));
-            int rowGap = 92;
-            int stepX = Math.max(90, innerWidth / Math.max(nodesPerRow - 1, 1));
+            int rowGap = 116;
+            int stepX = Math.max(92, innerWidth / Math.max(nodesPerRow - 1, 1));
 
             List<Point> points = new ArrayList<>();
             for (int i = 0; i < routePath.size(); i++) {
@@ -603,10 +603,6 @@ public class MetroGUI extends JFrame implements ActionListener {
                 int y = startY + row * rowGap;
                 points.add(new Point(x, y));
             }
-
-            g2.setFont(new Font("Segoe UI", Font.BOLD, 15));
-            g2.setColor(TEXT_DARK);
-            g2.drawString("Metro Route Drawing", 18, 24);
 
             for (int i = 0; i < points.size() - 1; i++) {
                 Point p1 = points.get(i);
@@ -655,13 +651,18 @@ public class MetroGUI extends JFrame implements ActionListener {
 
                 g2.setColor(TEXT_DARK);
                 g2.setFont(new Font("Segoe UI", Font.BOLD, 11));
-                drawCenteredWrappedText(g2, trimStationName(stationName), point.x, point.y + 30, 88);
+                int labelWidth = 92;
+                int labelY = point.y + 28;
 
-                g2.setFont(new Font("Segoe UI", Font.PLAIN, 10));
-                g2.setColor(lineColor.darker());
-                FontMetrics fm = g2.getFontMetrics();
-                int lineWidth = fm.stringWidth(lineName);
-                g2.drawString(lineName, point.x - lineWidth / 2, point.y + 62);
+                if (point.y + 72 > getHeight() - 18) {
+                    labelY = point.y - 56;
+                }
+
+                if (i > 0 && points.get(i - 1).y != point.y) {
+                    labelY = point.y + 28;
+                }
+
+                drawCenteredWrappedText(g2, stationName, point.x, labelY, labelWidth, 2);
             }
 
             g2.dispose();
@@ -677,14 +678,7 @@ public class MetroGUI extends JFrame implements ActionListener {
             return !previous.equals(current) || !current.equals(next);
         }
 
-        private String trimStationName(String name) {
-            if (name.length() <= 18) {
-                return name;
-            }
-            return name.substring(0, 18) + "...";
-        }
-
-        private void drawCenteredWrappedText(Graphics2D g2, String text, int centerX, int y, int maxWidth) {
+        private void drawCenteredWrappedText(Graphics2D g2, String text, int centerX, int y, int maxWidth, int maxLines) {
             FontMetrics fm = g2.getFontMetrics();
             String[] words = text.split(" ");
             List<String> lines = new ArrayList<>();
@@ -701,6 +695,19 @@ public class MetroGUI extends JFrame implements ActionListener {
             }
             if (current.length() > 0) {
                 lines.add(current.toString());
+            }
+
+            if (lines.size() > maxLines) {
+                List<String> trimmed = new ArrayList<>();
+                for (int i = 0; i < maxLines; i++) {
+                    trimmed.add(lines.get(i));
+                }
+                String last = trimmed.get(maxLines - 1);
+                while (fm.stringWidth(last + "...") > maxWidth && last.length() > 0) {
+                    last = last.substring(0, last.length() - 1);
+                }
+                trimmed.set(maxLines - 1, last + "...");
+                lines = trimmed;
             }
 
             int lineHeight = fm.getHeight();
