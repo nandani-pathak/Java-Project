@@ -5,6 +5,7 @@ import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MetroGUI extends JFrame implements ActionListener {
@@ -12,26 +13,31 @@ public class MetroGUI extends JFrame implements ActionListener {
     private static final Color PAGE_BG = new Color(8, 15, 29);
     private static final Color HERO_BG = new Color(18, 31, 56);
     private static final Color PANEL_BG = new Color(23, 39, 69);
-    private static final Color SURFACE = new Color(244, 247, 252);
-    private static final Color ACCENT = new Color(43, 199, 255);
-    private static final Color ACCENT_WARM = new Color(255, 205, 94);
+    private static final Color CARD_BG = new Color(247, 250, 255);
     private static final Color TEXT_PRIMARY = new Color(244, 247, 252);
     private static final Color TEXT_MUTED = new Color(171, 188, 213);
-    private static final Color TEXT_DARK = new Color(30, 43, 64);
-    private static final Color SUCCESS = new Color(120, 238, 176);
-    private static final Color WARNING = new Color(255, 124, 107);
+    private static final Color TEXT_DARK = new Color(33, 47, 72);
+    private static final Color ACCENT = new Color(49, 201, 255);
+    private static final Color SUCCESS = new Color(107, 225, 148);
+    private static final Color WARNING = new Color(255, 139, 104);
+    private static final Color PINK = new Color(221, 90, 163);
+    private static final Color GREEN = new Color(68, 186, 106);
+    private static final Color YELLOW = new Color(225, 183, 24);
+    private static final Color BLUE = new Color(63, 131, 230);
 
     private JComboBox<String> sourceDropdown;
     private JComboBox<String> destinationDropdown;
     private JButton findRouteBtn;
     private JButton clearBtn;
     private JButton swapBtn;
-    private JEditorPane resultPane;
+    private JTextArea resultArea;
     private JLabel statusLabel;
-    private JLabel totalStopsValue;
-    private JLabel fareValue;
-    private JLabel timeValue;
-    private JLabel interchangeValue;
+
+    private MetricCard stopsCard;
+    private MetricCard fareCard;
+    private MetricCard timeCard;
+    private MetricCard interchangeCard;
+    private RouteMapPanel routeMapPanel;
 
     private final Graph metroGraph;
 
@@ -42,212 +48,236 @@ public class MetroGUI extends JFrame implements ActionListener {
 
     private void initializeGUI() {
         setTitle("Delhi Metro Navigator");
-        setSize(1120, 860);
+        setSize(1200, 900);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(false);
         getContentPane().setBackground(PAGE_BG);
         setLayout(new BorderLayout());
 
-        JPanel page = new JPanel();
-        page.setBackground(PAGE_BG);
-        page.setLayout(new BoxLayout(page, BoxLayout.Y_AXIS));
-        page.setBorder(new EmptyBorder(18, 18, 14, 18));
+        JPanel root = new JPanel();
+        root.setBackground(PAGE_BG);
+        root.setLayout(new BoxLayout(root, BoxLayout.Y_AXIS));
+        root.setBorder(new EmptyBorder(18, 18, 16, 18));
 
-        JPanel heroPanel = buildHeroPanel();
-        heroPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        JPanel controlsPanel = buildControlsPanel();
-        controlsPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        JPanel detailsPanel = buildDetailsPanel();
-        detailsPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        JPanel hero = buildHeroPanel();
+        hero.setAlignmentX(Component.LEFT_ALIGNMENT);
+        JPanel controls = buildControlsPanel();
+        controls.setAlignmentX(Component.LEFT_ALIGNMENT);
+        JPanel analytics = buildAnalyticsPanel();
+        analytics.setAlignmentX(Component.LEFT_ALIGNMENT);
+        JPanel details = buildDetailsPanel();
+        details.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        page.add(heroPanel);
-        page.add(Box.createVerticalStrut(18));
-        page.add(controlsPanel);
-        page.add(Box.createVerticalStrut(18));
-        page.add(detailsPanel);
+        root.add(hero);
+        root.add(Box.createVerticalStrut(18));
+        root.add(controls);
+        root.add(Box.createVerticalStrut(18));
+        root.add(analytics);
+        root.add(Box.createVerticalStrut(18));
+        root.add(details);
 
-        statusLabel = new JLabel("Ready to plan a smoother trip across " + metroGraph.getTotalStations() + " stations.");
+        statusLabel = new JLabel("Ready to plan your route across " + metroGraph.getTotalStations() + " stations.");
         statusLabel.setForeground(TEXT_MUTED);
         statusLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         statusLabel.setBorder(new EmptyBorder(0, 24, 14, 24));
 
-        add(page, BorderLayout.CENTER);
+        add(root, BorderLayout.CENTER);
         add(statusLabel, BorderLayout.SOUTH);
 
-        resetSummaryCards();
-        showWelcomeMessage();
+        resetRouteView();
         setVisible(true);
     }
 
     private JPanel buildHeroPanel() {
-        JPanel heroPanel = createPanel(HERO_BG, new BorderLayout(20, 0), new EmptyBorder(24, 28, 24, 28));
+        JPanel heroPanel = createPanel(HERO_BG, new BorderLayout(20, 0), new EmptyBorder(26, 28, 26, 28));
         heroPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 220));
 
-        JLabel titleLabel = new JLabel("Delhi Metro Navigator");
-        titleLabel.setForeground(TEXT_PRIMARY);
-        titleLabel.setFont(new Font("Segoe UI Semibold", Font.BOLD, 34));
+        JPanel left = new JPanel();
+        left.setOpaque(false);
+        left.setLayout(new BoxLayout(left, BoxLayout.Y_AXIS));
 
-        JLabel subtitleLabel = new JLabel("Select stations once, then see the route map and all journey details directly below.");
-        subtitleLabel.setForeground(TEXT_MUTED);
-        subtitleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        JLabel title = new JLabel("Delhi Metro Navigator");
+        title.setForeground(TEXT_PRIMARY);
+        title.setFont(new Font("Segoe UI Semibold", Font.BOLD, 36));
 
-        JPanel badgePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 0));
-        badgePanel.setOpaque(false);
-        badgePanel.add(createBadge("More Spacious", ACCENT_WARM));
-        badgePanel.add(createBadge("Route Map", SUCCESS));
-        badgePanel.add(createBadge("Trip Summary", ACCENT));
+        JLabel subtitle = new JLabel("Pure Java Swing metro project with route drawing, fare, ETA, and station timeline.");
+        subtitle.setForeground(TEXT_MUTED);
+        subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 17));
 
-        JPanel textPanel = new JPanel();
-        textPanel.setOpaque(false);
-        textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.Y_AXIS));
-        titleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        subtitleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        badgePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        textPanel.add(titleLabel);
-        textPanel.add(Box.createVerticalStrut(12));
-        textPanel.add(subtitleLabel);
-        textPanel.add(Box.createVerticalStrut(18));
-        textPanel.add(badgePanel);
+        JPanel badges = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 0));
+        badges.setOpaque(false);
+        badges.add(createBadge("Java Swing UI", YELLOW));
+        badges.add(createBadge("Route Map", SUCCESS));
+        badges.add(createBadge("Easy To Explain", ACCENT));
 
-        heroPanel.add(textPanel, BorderLayout.CENTER);
+        title.setAlignmentX(Component.LEFT_ALIGNMENT);
+        subtitle.setAlignmentX(Component.LEFT_ALIGNMENT);
+        badges.setAlignmentX(Component.LEFT_ALIGNMENT);
+        left.add(title);
+        left.add(Box.createVerticalStrut(12));
+        left.add(subtitle);
+        left.add(Box.createVerticalStrut(18));
+        left.add(badges);
+
+        heroPanel.add(left, BorderLayout.CENTER);
         heroPanel.add(buildLegendPanel(), BorderLayout.EAST);
         return heroPanel;
     }
 
     private JPanel buildControlsPanel() {
         JPanel controlsPanel = createPanel(PANEL_BG, new BorderLayout(), new EmptyBorder(24, 24, 24, 24));
-        controlsPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 270));
+        controlsPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 240));
 
-        JLabel heading = new JLabel("Trip Controls");
+        JLabel heading = new JLabel("Choose Stations");
         heading.setForeground(TEXT_PRIMARY);
-        heading.setFont(new Font("Segoe UI Semibold", Font.BOLD, 22));
+        heading.setFont(new Font("Segoe UI Semibold", Font.BOLD, 24));
 
-        JLabel copy = new JLabel("Choose your source and destination. Everything else appears below this section.");
+        JLabel copy = new JLabel("Select source and destination, then the route map and trip details update below.");
         copy.setForeground(TEXT_MUTED);
         copy.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-
-        JPanel topCopy = new JPanel();
-        topCopy.setOpaque(false);
-        topCopy.setLayout(new BoxLayout(topCopy, BoxLayout.Y_AXIS));
-        heading.setAlignmentX(Component.LEFT_ALIGNMENT);
-        copy.setAlignmentX(Component.LEFT_ALIGNMENT);
-        topCopy.add(heading);
-        topCopy.add(Box.createVerticalStrut(8));
-        topCopy.add(copy);
 
         String[] stationNames = metroGraph.getAllStationNames();
         sourceDropdown = createStationDropdown(stationNames);
         destinationDropdown = createStationDropdown(stationNames);
         destinationDropdown.setSelectedIndex(Math.min(8, stationNames.length - 1));
 
-        JPanel grid = new JPanel(new GridLayout(1, 2, 18, 0));
-        grid.setOpaque(false);
-        grid.add(createFieldBlock("From", sourceDropdown));
-        grid.add(createFieldBlock("To", destinationDropdown));
+        JPanel fields = new JPanel(new GridLayout(1, 2, 18, 0));
+        fields.setOpaque(false);
+        fields.add(createFieldBlock("From", sourceDropdown));
+        fields.add(createFieldBlock("To", destinationDropdown));
 
-        JPanel buttonRow = new JPanel(new GridLayout(1, 3, 12, 0));
-        buttonRow.setOpaque(false);
+        JPanel buttons = new JPanel(new GridLayout(1, 3, 12, 0));
+        buttons.setOpaque(false);
         swapBtn = createButton("Swap", new Color(250, 240, 211), TEXT_DARK);
         findRouteBtn = createButton("Find Route", ACCENT, new Color(7, 22, 36));
         clearBtn = createButton("Reset", new Color(255, 232, 228), new Color(136, 42, 36));
-        buttonRow.add(swapBtn);
-        buttonRow.add(findRouteBtn);
-        buttonRow.add(clearBtn);
+        buttons.add(swapBtn);
+        buttons.add(findRouteBtn);
+        buttons.add(clearBtn);
 
         JPanel stack = new JPanel();
         stack.setOpaque(false);
         stack.setLayout(new BoxLayout(stack, BoxLayout.Y_AXIS));
-        topCopy.setAlignmentX(Component.LEFT_ALIGNMENT);
-        grid.setAlignmentX(Component.LEFT_ALIGNMENT);
-        buttonRow.setAlignmentX(Component.LEFT_ALIGNMENT);
-        stack.add(topCopy);
-        stack.add(Box.createVerticalStrut(20));
-        stack.add(grid);
+        heading.setAlignmentX(Component.LEFT_ALIGNMENT);
+        copy.setAlignmentX(Component.LEFT_ALIGNMENT);
+        fields.setAlignmentX(Component.LEFT_ALIGNMENT);
+        buttons.setAlignmentX(Component.LEFT_ALIGNMENT);
+        stack.add(heading);
+        stack.add(Box.createVerticalStrut(8));
+        stack.add(copy);
         stack.add(Box.createVerticalStrut(18));
-        stack.add(buttonRow);
+        stack.add(fields);
+        stack.add(Box.createVerticalStrut(18));
+        stack.add(buttons);
 
         controlsPanel.add(stack, BorderLayout.CENTER);
         return controlsPanel;
     }
 
-    private JPanel buildDetailsPanel() {
-        JPanel detailsPanel = createPanel(PANEL_BG, new BorderLayout(0, 18), new EmptyBorder(24, 24, 24, 24));
-        detailsPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 480));
+    private JPanel buildAnalyticsPanel() {
+        JPanel analyticsPanel = createPanel(PANEL_BG, new BorderLayout(), new EmptyBorder(24, 24, 24, 24));
+        analyticsPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 150));
 
-        JLabel heading = new JLabel("Journey Details");
+        JLabel heading = new JLabel("Trip Snapshot");
         heading.setForeground(TEXT_PRIMARY);
         heading.setFont(new Font("Segoe UI Semibold", Font.BOLD, 22));
 
-        JLabel copy = new JLabel("Route summary, simple route map, station timeline, and interchange notes all appear here.");
-        copy.setForeground(TEXT_MUTED);
-        copy.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        JPanel cards = new JPanel(new GridLayout(1, 4, 14, 0));
+        cards.setOpaque(false);
+        stopsCard = new MetricCard("Stops", ACCENT);
+        fareCard = new MetricCard("Fare", YELLOW);
+        timeCard = new MetricCard("ETA", SUCCESS);
+        interchangeCard = new MetricCard("Interchanges", WARNING);
+        cards.add(stopsCard);
+        cards.add(fareCard);
+        cards.add(timeCard);
+        cards.add(interchangeCard);
 
-        JPanel head = new JPanel();
-        head.setOpaque(false);
-        head.setLayout(new BoxLayout(head, BoxLayout.Y_AXIS));
-        heading.setAlignmentX(Component.LEFT_ALIGNMENT);
-        copy.setAlignmentX(Component.LEFT_ALIGNMENT);
-        head.add(heading);
-        head.add(Box.createVerticalStrut(8));
-        head.add(copy);
+        analyticsPanel.add(heading, BorderLayout.NORTH);
+        analyticsPanel.add(cards, BorderLayout.CENTER);
+        return analyticsPanel;
+    }
 
-        JPanel summaryGrid = new JPanel(new GridLayout(1, 4, 14, 0));
-        summaryGrid.setOpaque(false);
-        totalStopsValue = new JLabel();
-        fareValue = new JLabel();
-        timeValue = new JLabel();
-        interchangeValue = new JLabel();
-        summaryGrid.add(createMetricCard("Stops", totalStopsValue, new Color(103, 214, 255)));
-        summaryGrid.add(createMetricCard("Fare", fareValue, ACCENT_WARM));
-        summaryGrid.add(createMetricCard("ETA", timeValue, SUCCESS));
-        summaryGrid.add(createMetricCard("Interchanges", interchangeValue, WARNING));
+    private JPanel buildDetailsPanel() {
+        JPanel detailsPanel = createPanel(PANEL_BG, new BorderLayout(18, 18), new EmptyBorder(24, 24, 24, 24));
+        detailsPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 360));
 
-        resultPane = new JEditorPane();
-        resultPane.setEditable(false);
-        resultPane.setContentType("text/html");
-        resultPane.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, Boolean.TRUE);
-        resultPane.setBackground(SURFACE);
-        resultPane.setBorder(new EmptyBorder(0, 0, 0, 0));
+        JPanel titles = new JPanel(new GridLayout(1, 2, 18, 18));
+        titles.setOpaque(false);
 
-        JScrollPane scrollPane = new JScrollPane(resultPane);
-        scrollPane.setPreferredSize(new Dimension(1020, 220));
-        scrollPane.setBorder(new CompoundBorder(
-            new LineBorder(new Color(221, 229, 240), 1, true),
+        JPanel mapTitlePanel = new JPanel();
+        mapTitlePanel.setOpaque(false);
+        mapTitlePanel.setLayout(new BoxLayout(mapTitlePanel, BoxLayout.Y_AXIS));
+        JLabel mapTitle = new JLabel("Visual Route Map");
+        mapTitle.setForeground(TEXT_PRIMARY);
+        mapTitle.setFont(new Font("Segoe UI Semibold", Font.BOLD, 22));
+        JLabel mapCopy = new JLabel("Actual route drawing with line colors, station nodes, and interchange markers.");
+        mapCopy.setForeground(TEXT_MUTED);
+        mapCopy.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        mapTitlePanel.add(mapTitle);
+        mapTitlePanel.add(Box.createVerticalStrut(8));
+        mapTitlePanel.add(mapCopy);
+
+        JPanel infoTitlePanel = new JPanel();
+        infoTitlePanel.setOpaque(false);
+        infoTitlePanel.setLayout(new BoxLayout(infoTitlePanel, BoxLayout.Y_AXIS));
+        JLabel infoTitle = new JLabel("Route Notes");
+        infoTitle.setForeground(TEXT_PRIMARY);
+        infoTitle.setFont(new Font("Segoe UI Semibold", Font.BOLD, 22));
+        JLabel infoCopy = new JLabel("Simple station-by-station details you can explain in your demo.");
+        infoCopy.setForeground(TEXT_MUTED);
+        infoCopy.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        infoTitlePanel.add(infoTitle);
+        infoTitlePanel.add(Box.createVerticalStrut(8));
+        infoTitlePanel.add(infoCopy);
+
+        titles.add(mapTitlePanel);
+        titles.add(infoTitlePanel);
+
+        JPanel content = new JPanel(new GridLayout(1, 2, 18, 0));
+        content.setOpaque(false);
+
+        routeMapPanel = new RouteMapPanel();
+        routeMapPanel.setPreferredSize(new Dimension(560, 230));
+
+        resultArea = new JTextArea();
+        resultArea.setEditable(false);
+        resultArea.setLineWrap(true);
+        resultArea.setWrapStyleWord(true);
+        resultArea.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        resultArea.setBackground(CARD_BG);
+        resultArea.setForeground(TEXT_DARK);
+        resultArea.setBorder(new EmptyBorder(16, 16, 16, 16));
+
+        JScrollPane resultScroll = new JScrollPane(resultArea);
+        resultScroll.setBorder(new CompoundBorder(
+            new LineBorder(new Color(219, 228, 240), 1, true),
             new EmptyBorder(0, 0, 0, 0)
         ));
-        scrollPane.getViewport().setBackground(SURFACE);
-        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
-        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        resultScroll.getViewport().setBackground(CARD_BG);
+        resultScroll.getVerticalScrollBar().setUnitIncrement(16);
 
-        JPanel stack = new JPanel();
-        stack.setOpaque(false);
-        stack.setLayout(new BoxLayout(stack, BoxLayout.Y_AXIS));
-        head.setAlignmentX(Component.LEFT_ALIGNMENT);
-        summaryGrid.setAlignmentX(Component.LEFT_ALIGNMENT);
-        scrollPane.setAlignmentX(Component.LEFT_ALIGNMENT);
-        stack.add(head);
-        stack.add(Box.createVerticalStrut(18));
-        stack.add(summaryGrid);
-        stack.add(Box.createVerticalStrut(18));
-        stack.add(scrollPane);
+        content.add(routeMapPanel);
+        content.add(resultScroll);
 
-        detailsPanel.add(stack, BorderLayout.CENTER);
+        detailsPanel.add(titles, BorderLayout.NORTH);
+        detailsPanel.add(content, BorderLayout.CENTER);
         return detailsPanel;
     }
 
     private JPanel buildLegendPanel() {
         JPanel legendPanel = createPanel(new Color(12, 23, 42), new GridLayout(5, 1, 0, 10), new EmptyBorder(18, 20, 18, 20));
-        legendPanel.setPreferredSize(new Dimension(240, 162));
+        legendPanel.setPreferredSize(new Dimension(240, 170));
 
-        JLabel legendTitle = new JLabel("Line Legend");
-        legendTitle.setForeground(TEXT_PRIMARY);
-        legendTitle.setFont(new Font("Segoe UI Semibold", Font.BOLD, 15));
-        legendPanel.add(legendTitle);
-        legendPanel.add(createLegendRow("Yellow Line", new Color(255, 214, 102)));
-        legendPanel.add(createLegendRow("Blue Line", new Color(86, 166, 255)));
-        legendPanel.add(createLegendRow("Pink Line", new Color(255, 120, 182)));
-        legendPanel.add(createLegendRow("Green Line", new Color(80, 201, 120)));
+        JLabel title = new JLabel("Line Legend");
+        title.setForeground(TEXT_PRIMARY);
+        title.setFont(new Font("Segoe UI Semibold", Font.BOLD, 15));
+        legendPanel.add(title);
+        legendPanel.add(createLegendRow("Yellow Line", YELLOW));
+        legendPanel.add(createLegendRow("Blue Line", BLUE));
+        legendPanel.add(createLegendRow("Pink Line", PINK));
+        legendPanel.add(createLegendRow("Green Line", GREEN));
         return legendPanel;
     }
 
@@ -261,7 +291,6 @@ public class MetroGUI extends JFrame implements ActionListener {
         label.setFont(new Font("Segoe UI Semibold", Font.BOLD, 13));
         label.setAlignmentX(Component.LEFT_ALIGNMENT);
         dropdown.setAlignmentX(Component.LEFT_ALIGNMENT);
-
         field.add(label);
         field.add(Box.createVerticalStrut(10));
         field.add(dropdown);
@@ -298,53 +327,34 @@ public class MetroGUI extends JFrame implements ActionListener {
         return button;
     }
 
-    private JPanel createMetricCard(String title, JLabel valueLabel, Color accentColor) {
-        JPanel card = createPanel(new Color(12, 26, 47), new BorderLayout(0, 12), new EmptyBorder(16, 16, 16, 16));
-        card.setBorder(new CompoundBorder(
-            new LineBorder(new Color(accentColor.getRed(), accentColor.getGreen(), accentColor.getBlue(), 110), 1, true),
-            new EmptyBorder(0, 0, 0, 0)
-        ));
-
-        JLabel titleLabel = new JLabel(title);
-        titleLabel.setForeground(TEXT_MUTED);
-        titleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-
-        valueLabel.setForeground(accentColor);
-        valueLabel.setFont(new Font("Segoe UI Semibold", Font.BOLD, 20));
-
-        card.add(titleLabel, BorderLayout.NORTH);
-        card.add(valueLabel, BorderLayout.CENTER);
-        return card;
-    }
-
     private JLabel createBadge(String text, Color badgeColor) {
         JLabel badge = new JLabel(text);
         badge.setOpaque(true);
         badge.setBackground(new Color(badgeColor.getRed(), badgeColor.getGreen(), badgeColor.getBlue(), 30));
         badge.setForeground(badgeColor);
         badge.setBorder(new CompoundBorder(
-            new LineBorder(new Color(badgeColor.getRed(), badgeColor.getGreen(), badgeColor.getBlue(), 100), 1, true),
+            new LineBorder(new Color(badgeColor.getRed(), badgeColor.getGreen(), badgeColor.getBlue(), 110), 1, true),
             new EmptyBorder(8, 14, 8, 14)
         ));
         badge.setFont(new Font("Segoe UI Semibold", Font.BOLD, 12));
         return badge;
     }
 
-    private JPanel createLegendRow(String lineName, Color lineColor) {
+    private JPanel createLegendRow(String text, Color swatchColor) {
         JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         row.setOpaque(false);
 
         JLabel swatch = new JLabel(" ");
         swatch.setOpaque(true);
-        swatch.setBackground(lineColor);
+        swatch.setBackground(swatchColor);
         swatch.setPreferredSize(new Dimension(24, 24));
 
-        JLabel nameLabel = new JLabel(lineName);
-        nameLabel.setForeground(TEXT_MUTED);
-        nameLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        JLabel label = new JLabel(text);
+        label.setForeground(TEXT_MUTED);
+        label.setFont(new Font("Segoe UI", Font.PLAIN, 14));
 
         row.add(swatch);
-        row.add(nameLabel);
+        row.add(label);
         return row;
     }
 
@@ -372,200 +382,94 @@ public class MetroGUI extends JFrame implements ActionListener {
         String destName = (String) destinationDropdown.getSelectedItem();
 
         if (sourceName == null || destName == null) {
-            showErrorState("Select valid source and destination stations.");
+            showError("Select valid source and destination stations.");
             return;
         }
 
         if (sourceName.equals(destName)) {
-            showErrorState("Source and destination cannot be the same station.");
+            showError("Source and destination cannot be the same station.");
             statusLabel.setText("Select two different stations to continue.");
             return;
         }
 
         try {
             Graph.RouteDetails details = metroGraph.findRouteDetails(sourceName, destName);
-            updateSummaryCards(details);
-            resultPane.setText(buildRouteHtml(details));
-            resultPane.setCaretPosition(0);
+            stopsCard.setValue(String.valueOf(details.getStops()));
+            fareCard.setValue("Rs " + details.getFare());
+            timeCard.setValue(details.getEstimatedMinutes() + " min");
+            interchangeCard.setValue(String.valueOf(details.getInterchanges().size()));
+            routeMapPanel.setRoute(details.getPath());
+            resultArea.setText(buildResultText(details));
+            resultArea.setCaretPosition(0);
             statusLabel.setText(
                 "Route ready from " + details.getSourceName() + " to " + details.getDestinationName()
                     + " | " + details.getStops() + " stops | Rs " + details.getFare()
             );
         } catch (InvalidStationException ex) {
-            showErrorState(ex.getMessage());
+            showError(ex.getMessage());
             statusLabel.setText("Unable to calculate route right now.");
         }
     }
 
-    private String buildRouteHtml(Graph.RouteDetails details) {
+    private String buildResultText(Graph.RouteDetails details) {
         StringBuilder sb = new StringBuilder();
-        sb.append("<html><body style='margin:0; font-family:Segoe UI; background:#f4f7fc; color:#1f2b3d;'>");
-        sb.append("<div style='padding:22px 22px 10px 22px;'>");
-        sb.append("<div style='font-size:12px; letter-spacing:1.2px; color:#6a7a96; font-weight:700;'>BEST ROUTE SELECTED</div>");
-        sb.append("<div style='margin-top:8px; font-size:26px; font-weight:700;'>")
-            .append(escapeHtml(details.getSourceName())).append(" to ")
-            .append(escapeHtml(details.getDestinationName())).append("</div>");
-        sb.append("<div style='margin-top:8px; font-size:14px; color:#5f6f89;'>The journey map and full station list are shown below.</div>");
-        sb.append("</div>");
+        sb.append("BEST ROUTE\n");
+        sb.append("--------------------------------------------------\n");
+        sb.append("From        : ").append(details.getSourceName()).append("\n");
+        sb.append("To          : ").append(details.getDestinationName()).append("\n");
+        sb.append("Fare        : Rs ").append(details.getFare()).append("\n");
+        sb.append("ETA         : ").append(details.getEstimatedMinutes()).append(" min\n");
+        sb.append("Stops       : ").append(details.getStops()).append("\n");
+        sb.append("Interchange : ").append(details.getInterchanges().size()).append("\n\n");
 
-        sb.append("<div style='padding:0 22px 10px 22px;'>");
-        sb.append("<div style='font-size:18px; font-weight:700; margin-bottom:12px;'>Metro Route Map</div>");
-        sb.append("<div style='padding:18px; background:#ffffff; border:1px solid #e1e8f2; border-radius:12px;'>");
-        sb.append("<div style='font-size:13px; color:#6b7b95; margin-bottom:14px;'>Connected route path with line colors and interchange markers</div>");
-        sb.append("<div style='white-space:nowrap; overflow-x:auto; padding-bottom:8px;'>");
-        sb.append("<table style='border-collapse:collapse;'><tr>");
+        sb.append("STATION TIMELINE\n");
+        sb.append("--------------------------------------------------\n");
         List<Integer> path = details.getPath();
         for (int i = 0; i < path.size(); i++) {
             String stationName = metroGraph.getStationName(path.get(i));
             String lineName = metroGraph.getStationLine(path.get(i));
-            String currentHex = getLineHex(lineName);
-            String markerLabel = "STOP";
-            String markerBg = currentHex;
-            String ring = currentHex;
-
+            String label = "Stop";
             if (i == 0) {
-                markerLabel = "START";
-                markerBg = "#1d9c5f";
-                ring = "#1d9c5f";
+                label = "Start";
             } else if (i == path.size() - 1) {
-                markerLabel = "END";
-                markerBg = "#d6594b";
-                ring = "#d6594b";
+                label = "End";
             } else {
                 String previousLine = metroGraph.getStationLine(path.get(i - 1));
                 if (!previousLine.equals(lineName)) {
-                    markerLabel = "CHANGE";
-                    markerBg = "#a97900";
-                    ring = "#a97900";
+                    label = "Change";
                 }
             }
-
-            sb.append("<td style='vertical-align:top; min-width:138px; text-align:center;'>");
-            sb.append("<div style='display:flex; flex-direction:column; align-items:center;'>");
-            sb.append("<div style='font-size:10px; font-weight:700; color:")
-                .append(markerBg)
-                .append("; letter-spacing:0.8px; margin-bottom:8px;'>")
-                .append(markerLabel)
-                .append("</div>");
-            sb.append("<div style='width:18px; height:18px; border-radius:50%; background:#ffffff; border:4px solid ")
-                .append(ring)
-                .append("; box-sizing:border-box;'></div>");
-            sb.append("<div style='margin-top:10px; font-size:12px; line-height:1.4; font-weight:600; color:#23324b; max-width:112px;'>")
-                .append(escapeHtml(stationName))
-                .append("</div>");
-            sb.append("<div style='margin-top:4px; font-size:11px; color:")
-                .append(currentHex)
-                .append("; font-weight:700;'>")
-                .append(escapeHtml(lineName))
-                .append("</div>");
-            sb.append("</div></td>");
-
-            if (i < path.size() - 1) {
-                String nextLine = metroGraph.getStationLine(path.get(i + 1));
-                String connectorHex = currentHex;
-                if (!lineName.equals(nextLine)) {
-                    connectorHex = "#a97900";
-                }
-                sb.append("<td style='min-width:74px; vertical-align:top; padding-top:30px;'>");
-                sb.append("<div style='height:6px; border-radius:999px; background:")
-                    .append(connectorHex)
-                    .append("; position:relative; top:15px;'></div>");
-                sb.append("</td>");
-            }
+            sb.append(String.format("%-8s %s [%s Line]%n", label, stationName, lineName));
         }
-        sb.append("</tr></table></div></div></div>");
 
-        sb.append("<div style='padding:0 22px 14px 22px;'>");
-        sb.append("<div style='font-size:18px; font-weight:700; margin-bottom:12px;'>Station Timeline</div>");
-        for (int i = 0; i < path.size(); i++) {
-            String stationName = metroGraph.getStationName(path.get(i));
-            String lineName = metroGraph.getStationLine(path.get(i));
-            String tagText = "Stop";
-            String tagBg = "#e8f2ff";
-            String tagFg = "#2f75d6";
-            if (i == 0) {
-                tagText = "Start";
-                tagBg = "#e7fff2";
-                tagFg = "#1d9c5f";
-            } else if (i == path.size() - 1) {
-                tagText = "End";
-                tagBg = "#fff0ec";
-                tagFg = "#d6594b";
-            } else {
-                String previousLine = metroGraph.getStationLine(path.get(i - 1));
-                if (!previousLine.equals(lineName)) {
-                    tagText = "Change";
-                    tagBg = "#fff8e3";
-                    tagFg = "#a97900";
-                }
-            }
-            sb.append("<div style='display:flex; align-items:flex-start; gap:14px; padding:10px 0; border-bottom:1px solid #e8edf5;'>");
-            sb.append("<div style='min-width:74px; text-align:center; padding:6px 10px; border-radius:999px; background:")
-                .append(tagBg).append("; color:").append(tagFg).append("; font-size:12px; font-weight:700;'>")
-                .append(tagText).append("</div>");
-            sb.append("<div><div style='font-size:15px; font-weight:700;'>").append(escapeHtml(stationName)).append("</div>");
-            sb.append("<div style='margin-top:4px; font-size:13px; color:#697a96;'>").append(escapeHtml(lineName)).append(" Line</div></div>");
-            sb.append("</div>");
-        }
-        sb.append("</div>");
-
-        sb.append("<div style='padding:0 22px 22px 22px;'>");
-        sb.append("<div style='font-size:18px; font-weight:700; margin-bottom:12px;'>Interchange Notes</div>");
-        sb.append("<div style='padding:16px; background:#ffffff; border:1px solid #e1e8f2; border-radius:12px;'>");
+        sb.append("\nINTERCHANGE NOTES\n");
+        sb.append("--------------------------------------------------\n");
         if (details.getInterchanges().isEmpty()) {
-            sb.append("<div style='font-size:14px; color:#596985;'>No interchanges needed for this journey.</div>");
+            sb.append("No interchanges needed for this journey.\n");
         } else {
             for (String interchange : details.getInterchanges()) {
-                sb.append("<div style='font-size:14px; color:#596985; margin-bottom:8px;'>&bull; ")
-                    .append(escapeHtml(interchange)).append("</div>");
+                sb.append("- ").append(interchange).append("\n");
             }
         }
-        sb.append("</div></div>");
-        sb.append("</body></html>");
+
+        sb.append("\nHow to explain this in demo:\n");
+        sb.append("1. User selects two stations.\n");
+        sb.append("2. Dijkstra's algorithm finds the shortest route.\n");
+        sb.append("3. Java Swing draws the route map and trip details.\n");
         return sb.toString();
     }
 
-    private String getLineHex(String line) {
-        switch (line) {
-            case "Yellow":
-                return "#d8a900";
-            case "Blue":
-                return "#2f75d6";
-            case "Pink":
-                return "#d4529d";
-            case "Green":
-                return "#2d9857";
-            default:
-                return "#5f6f89";
-        }
-    }
-
-    private void updateSummaryCards(Graph.RouteDetails details) {
-        totalStopsValue.setText(String.valueOf(details.getStops()));
-        fareValue.setText("Rs " + details.getFare());
-        timeValue.setText(details.getEstimatedMinutes() + " min");
-        interchangeValue.setText(String.valueOf(details.getInterchanges().size()));
-    }
-
-    private void showErrorState(String message) {
-        resultPane.setText(
-            "<html><body style='margin:0; font-family:Segoe UI; background:#fdf5f3; color:#7b3029;'>"
-                + "<div style='padding:24px;'>"
-                + "<div style='font-size:12px; font-weight:700; letter-spacing:1px;'>ROUTE UNAVAILABLE</div>"
-                + "<div style='margin-top:12px; font-size:22px; font-weight:700;'>We could not build that trip</div>"
-                + "<div style='margin-top:8px; font-size:14px; color:#91534c;'>"
-                + escapeHtml(message)
-                + "</div></div></body></html>"
-        );
-        resultPane.setCaretPosition(0);
-        resetSummaryCards();
+    private void showError(String message) {
+        resetCards();
+        routeMapPanel.clearRoute();
+        resultArea.setText("ROUTE UNAVAILABLE\n-----------------\n" + message);
+        resultArea.setCaretPosition(0);
     }
 
     private void clearResult() {
         sourceDropdown.setSelectedIndex(0);
         destinationDropdown.setSelectedIndex(Math.min(8, destinationDropdown.getItemCount() - 1));
-        resetSummaryCards();
-        showWelcomeMessage();
+        resetRouteView();
         statusLabel.setText("Selections reset. Ready for a new search.");
     }
 
@@ -577,27 +481,41 @@ public class MetroGUI extends JFrame implements ActionListener {
         statusLabel.setText("Stations swapped. You can search the reverse trip now.");
     }
 
-    private void resetSummaryCards() {
-        totalStopsValue.setText("--");
-        fareValue.setText("--");
-        timeValue.setText("--");
-        interchangeValue.setText("--");
-    }
-
-    private void showWelcomeMessage() {
-        resultPane.setText(
-            "<html><body style='margin:0; font-family:Segoe UI; background:#f4f7fc; color:#1f2b3d;'>"
-                + "<div style='padding:24px;'>"
-                + "<div style='font-size:12px; letter-spacing:1.2px; color:#6a7a96; font-weight:700;'>WELCOME</div>"
-                + "<div style='margin-top:10px; font-size:26px; font-weight:700;'>Select stations and see everything below</div>"
-                + "<div style='margin-top:10px; font-size:14px; color:#5f6f89;'>This layout keeps the flow simple: choose stations on top, then read the route map, timeline, fare, ETA, and interchanges underneath.</div>"
-                + "</div></body></html>"
+    private void resetRouteView() {
+        resetCards();
+        routeMapPanel.clearRoute();
+        resultArea.setText(
+            "Select source and destination stations, then click 'Find Route'.\n\n"
+                + "What your teacher can easily understand here:\n"
+                + "- Java Swing based interface\n"
+                + "- Graph representation of Delhi Metro\n"
+                + "- Dijkstra's algorithm for shortest path\n"
+                + "- Custom Java drawing for route map visualization\n"
+                + "- Fare and interchange calculation\n"
         );
-        resultPane.setCaretPosition(0);
+        resultArea.setCaretPosition(0);
     }
 
-    private String escapeHtml(String text) {
-        return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
+    private void resetCards() {
+        stopsCard.setValue("--");
+        fareCard.setValue("--");
+        timeCard.setValue("--");
+        interchangeCard.setValue("--");
+    }
+
+    private Color getLineColor(String line) {
+        switch (line) {
+            case "Yellow":
+                return YELLOW;
+            case "Blue":
+                return BLUE;
+            case "Pink":
+                return PINK;
+            case "Green":
+                return GREEN;
+            default:
+                return new Color(106, 124, 150);
+        }
     }
 
     private class StationRenderer extends DefaultListCellRenderer {
@@ -611,25 +529,202 @@ public class MetroGUI extends JFrame implements ActionListener {
                 label.setBorder(new EmptyBorder(8, 10, 8, 10));
                 if (!isSelected) {
                     label.setBackground(Color.WHITE);
-                    label.setForeground(getLineColor(line));
+                    label.setForeground(getLineColor(line).darker());
                 }
             }
             return label;
         }
     }
 
-    private Color getLineColor(String line) {
-        switch (line) {
-            case "Yellow":
-                return new Color(135, 100, 0);
-            case "Blue":
-                return new Color(15, 72, 150);
-            case "Pink":
-                return new Color(186, 45, 120);
-            case "Green":
-                return new Color(31, 133, 66);
-            default:
-                return TEXT_DARK;
+    private class MetricCard extends JPanel {
+        private final JLabel valueLabel;
+
+        MetricCard(String title, Color accentColor) {
+            setLayout(new BorderLayout(0, 10));
+            setBackground(new Color(11, 24, 44));
+            setBorder(new CompoundBorder(
+                new LineBorder(new Color(accentColor.getRed(), accentColor.getGreen(), accentColor.getBlue(), 115), 1, true),
+                new EmptyBorder(14, 14, 14, 14)
+            ));
+
+            JLabel titleLabel = new JLabel(title);
+            titleLabel.setForeground(TEXT_MUTED);
+            titleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+
+            valueLabel = new JLabel("--");
+            valueLabel.setForeground(accentColor);
+            valueLabel.setFont(new Font("Segoe UI Semibold", Font.BOLD, 20));
+
+            add(titleLabel, BorderLayout.NORTH);
+            add(valueLabel, BorderLayout.CENTER);
+        }
+
+        void setValue(String value) {
+            valueLabel.setText(value);
+        }
+    }
+
+    private class RouteMapPanel extends JPanel {
+        private List<Integer> routePath = new ArrayList<>();
+
+        RouteMapPanel() {
+            setBackground(CARD_BG);
+            setBorder(new CompoundBorder(
+                new LineBorder(new Color(219, 228, 240), 1, true),
+                new EmptyBorder(12, 12, 12, 12)
+            ));
+        }
+
+        void setRoute(List<Integer> path) {
+            routePath = new ArrayList<>(path);
+            repaint();
+        }
+
+        void clearRoute() {
+            routePath.clear();
+            repaint();
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+
+            if (routePath.isEmpty()) {
+                g2.setColor(new Color(100, 118, 145));
+                g2.setFont(new Font("Segoe UI", Font.PLAIN, 18));
+                g2.drawString("Route map will appear here after you search.", 24, 44);
+                g2.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+                g2.drawString("This panel is drawn directly using Java Swing graphics.", 24, 68);
+                g2.dispose();
+                return;
+            }
+
+            int innerWidth = getWidth() - 50;
+            int startX = 28;
+            int startY = 54;
+            int nodesPerRow = Math.max(4, Math.min(6, routePath.size()));
+            int rowGap = 92;
+            int stepX = Math.max(90, innerWidth / Math.max(nodesPerRow - 1, 1));
+
+            List<Point> points = new ArrayList<>();
+            for (int i = 0; i < routePath.size(); i++) {
+                int row = i / nodesPerRow;
+                int col = i % nodesPerRow;
+                boolean reverse = row % 2 == 1;
+                int effectiveCol = reverse ? (nodesPerRow - 1 - col) : col;
+                int x = startX + Math.min(effectiveCol, nodesPerRow - 1) * stepX;
+                int y = startY + row * rowGap;
+                points.add(new Point(x, y));
+            }
+
+            g2.setFont(new Font("Segoe UI", Font.BOLD, 15));
+            g2.setColor(TEXT_DARK);
+            g2.drawString("Metro Route Drawing", 18, 24);
+
+            for (int i = 0; i < points.size() - 1; i++) {
+                Point p1 = points.get(i);
+                Point p2 = points.get(i + 1);
+                String currentLine = metroGraph.getStationLine(routePath.get(i));
+                String nextLine = metroGraph.getStationLine(routePath.get(i + 1));
+                Color connectorColor = getLineColor(currentLine);
+                if (!currentLine.equals(nextLine)) {
+                    connectorColor = WARNING;
+                }
+                g2.setColor(connectorColor);
+                g2.setStroke(new BasicStroke(6f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+
+                if (p1.y == p2.y) {
+                    g2.drawLine(p1.x, p1.y, p2.x, p2.y);
+                } else {
+                    int midY = p1.y + (p2.y - p1.y) / 2;
+                    g2.drawLine(p1.x, p1.y, p1.x, midY);
+                    g2.drawLine(p1.x, midY, p2.x, midY);
+                    g2.drawLine(p2.x, midY, p2.x, p2.y);
+                }
+            }
+
+            for (int i = 0; i < points.size(); i++) {
+                Point point = points.get(i);
+                String stationName = metroGraph.getStationName(routePath.get(i));
+                String lineName = metroGraph.getStationLine(routePath.get(i));
+                Color lineColor = getLineColor(lineName);
+
+                g2.setColor(Color.WHITE);
+                g2.fillOval(point.x - 11, point.y - 11, 22, 22);
+                g2.setColor(lineColor);
+                g2.setStroke(new BasicStroke(5f));
+                g2.drawOval(point.x - 11, point.y - 11, 22, 22);
+
+                if (i == 0 || i == points.size() - 1 || isInterchange(i)) {
+                    g2.setColor(new Color(255, 255, 255, 210));
+                    g2.fillRoundRect(point.x - 30, point.y - 40, 60, 18, 10, 10);
+                    g2.setColor(i == 0 ? SUCCESS.darker() : i == points.size() - 1 ? WARNING.darker() : YELLOW.darker());
+                    String tag = i == 0 ? "START" : i == points.size() - 1 ? "END" : "CHANGE";
+                    g2.setFont(new Font("Segoe UI", Font.BOLD, 10));
+                    FontMetrics tagMetrics = g2.getFontMetrics();
+                    int tagWidth = tagMetrics.stringWidth(tag);
+                    g2.drawString(tag, point.x - tagWidth / 2, point.y - 27);
+                }
+
+                g2.setColor(TEXT_DARK);
+                g2.setFont(new Font("Segoe UI", Font.BOLD, 11));
+                drawCenteredWrappedText(g2, trimStationName(stationName), point.x, point.y + 30, 88);
+
+                g2.setFont(new Font("Segoe UI", Font.PLAIN, 10));
+                g2.setColor(lineColor.darker());
+                FontMetrics fm = g2.getFontMetrics();
+                int lineWidth = fm.stringWidth(lineName);
+                g2.drawString(lineName, point.x - lineWidth / 2, point.y + 62);
+            }
+
+            g2.dispose();
+        }
+
+        private boolean isInterchange(int index) {
+            if (index <= 0 || index >= routePath.size() - 1) {
+                return false;
+            }
+            String previous = metroGraph.getStationLine(routePath.get(index - 1));
+            String current = metroGraph.getStationLine(routePath.get(index));
+            String next = metroGraph.getStationLine(routePath.get(index + 1));
+            return !previous.equals(current) || !current.equals(next);
+        }
+
+        private String trimStationName(String name) {
+            if (name.length() <= 18) {
+                return name;
+            }
+            return name.substring(0, 18) + "...";
+        }
+
+        private void drawCenteredWrappedText(Graphics2D g2, String text, int centerX, int y, int maxWidth) {
+            FontMetrics fm = g2.getFontMetrics();
+            String[] words = text.split(" ");
+            List<String> lines = new ArrayList<>();
+            StringBuilder current = new StringBuilder();
+
+            for (String word : words) {
+                String candidate = current.length() == 0 ? word : current + " " + word;
+                if (fm.stringWidth(candidate) > maxWidth && current.length() > 0) {
+                    lines.add(current.toString());
+                    current = new StringBuilder(word);
+                } else {
+                    current = new StringBuilder(candidate);
+                }
+            }
+            if (current.length() > 0) {
+                lines.add(current.toString());
+            }
+
+            int lineHeight = fm.getHeight();
+            for (int i = 0; i < lines.size(); i++) {
+                String line = lines.get(i);
+                int width = fm.stringWidth(line);
+                g2.drawString(line, centerX - width / 2, y + (i * lineHeight));
+            }
         }
     }
 }
