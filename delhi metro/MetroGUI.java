@@ -624,11 +624,11 @@ public class MetroGUI extends JFrame implements ActionListener {
                 g2.setStroke(new BasicStroke(5f));
                 g2.drawOval(point.x - 11, point.y - 11, 22, 22);
 
-                if (i == 0 || i == points.size() - 1 || isInterchange(i)) {
+                if (i == 0 || i == points.size() - 1) {
                     g2.setColor(new Color(255, 255, 255, 210));
                     g2.fillRoundRect(point.x - 30, point.y - 40, 60, 18, 10, 10);
-                    g2.setColor(i == 0 ? SUCCESS.darker() : i == points.size() - 1 ? WARNING.darker() : YELLOW.darker());
-                    String tag = i == 0 ? "START" : i == points.size() - 1 ? "END" : "CHANGE";
+                    g2.setColor(i == 0 ? SUCCESS.darker() : WARNING.darker());
+                    String tag = i == 0 ? "START" : "END";
                     g2.setFont(new Font("Segoe UI", Font.BOLD, 10));
                     FontMetrics tagMetrics = g2.getFontMetrics();
                     int tagWidth = tagMetrics.stringWidth(tag);
@@ -638,14 +638,6 @@ public class MetroGUI extends JFrame implements ActionListener {
                 g2.setColor(TEXT_DARK);
                 g2.setFont(new Font("Segoe UI", Font.BOLD, 11));
                 drawWrappedLeftText(g2, stationName, point.x + 34, point.y - 10, 220, 2);
-
-                if (isInterchange(i) && i > 0 && i < points.size() - 1) {
-                    g2.setColor(new Color(255, 248, 225));
-                    g2.fillRoundRect(point.x + 290, point.y - 12, 78, 22, 10, 10);
-                    g2.setColor(YELLOW.darker());
-                    g2.setFont(new Font("Segoe UI", Font.BOLD, 11));
-                    g2.drawString("CHANGE", point.x + 303, point.y + 3);
-                }
             }
 
             g2.dispose();
