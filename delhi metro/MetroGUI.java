@@ -82,7 +82,13 @@ public class MetroGUI extends JFrame implements ActionListener {
         statusLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         statusLabel.setBorder(new EmptyBorder(0, 24, 14, 24));
 
-        add(root, BorderLayout.CENTER);
+        JScrollPane pageScroll = new JScrollPane(root);
+        pageScroll.setBorder(null);
+        pageScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        pageScroll.getVerticalScrollBar().setUnitIncrement(18);
+        pageScroll.getViewport().setBackground(PAGE_BG);
+
+        add(pageScroll, BorderLayout.CENTER);
         add(statusLabel, BorderLayout.SOUTH);
 
         resetRouteView();
@@ -101,24 +107,15 @@ public class MetroGUI extends JFrame implements ActionListener {
         title.setForeground(TEXT_PRIMARY);
         title.setFont(new Font("Segoe UI Semibold", Font.BOLD, 36));
 
-        JLabel subtitle = new JLabel("Pure Java Swing metro project with route drawing, fare, ETA, and station timeline.");
+        JLabel subtitle = new JLabel("Route drawing, fare, ETA, and station timeline in one clean Java project.");
         subtitle.setForeground(TEXT_MUTED);
         subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 17));
 
-        JPanel badges = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 0));
-        badges.setOpaque(false);
-        badges.add(createBadge("Java Swing UI", YELLOW));
-        badges.add(createBadge("Route Map", SUCCESS));
-        badges.add(createBadge("Easy To Explain", ACCENT));
-
         title.setAlignmentX(Component.LEFT_ALIGNMENT);
         subtitle.setAlignmentX(Component.LEFT_ALIGNMENT);
-        badges.setAlignmentX(Component.LEFT_ALIGNMENT);
         left.add(title);
         left.add(Box.createVerticalStrut(12));
         left.add(subtitle);
-        left.add(Box.createVerticalStrut(18));
-        left.add(badges);
 
         heroPanel.add(left, BorderLayout.CENTER);
         heroPanel.add(buildLegendPanel(), BorderLayout.EAST);
@@ -201,7 +198,7 @@ public class MetroGUI extends JFrame implements ActionListener {
 
     private JPanel buildDetailsPanel() {
         JPanel detailsPanel = createPanel(PANEL_BG, new BorderLayout(18, 18), new EmptyBorder(24, 24, 24, 24));
-        detailsPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 360));
+        detailsPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 520));
 
         JPanel titles = new JPanel(new GridLayout(1, 2, 18, 18));
         titles.setOpaque(false);
@@ -239,7 +236,7 @@ public class MetroGUI extends JFrame implements ActionListener {
         content.setOpaque(false);
 
         routeMapPanel = new RouteMapPanel();
-        routeMapPanel.setPreferredSize(new Dimension(560, 230));
+        routeMapPanel.setPreferredSize(new Dimension(560, 320));
 
         resultArea = new JTextArea();
         resultArea.setEditable(false);
