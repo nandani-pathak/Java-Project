@@ -201,7 +201,7 @@ public class MetroGUI extends JFrame implements ActionListener {
 
     private JPanel buildDetailsPanel() {
         JPanel detailsPanel = createPanel(PANEL_BG, new BorderLayout(18, 18), new EmptyBorder(24, 24, 24, 24));
-        detailsPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 520));
+        detailsPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 860));
 
         JPanel titles = new JPanel(new GridLayout(1, 2, 18, 18));
         titles.setOpaque(false);
@@ -237,9 +237,11 @@ public class MetroGUI extends JFrame implements ActionListener {
 
         JPanel content = new JPanel(new GridLayout(1, 2, 18, 0));
         content.setOpaque(false);
+        content.setMaximumSize(new Dimension(Integer.MAX_VALUE, 760));
 
         routeMapPanel = new RouteMapPanel();
         routeMapPanel.setPreferredSize(new Dimension(560, 760));
+        routeMapPanel.setMinimumSize(new Dimension(560, 760));
 
         resultArea = new JTextArea();
         resultArea.setEditable(false);
