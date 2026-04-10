@@ -13,6 +13,7 @@ public class MetroGUI extends JFrame implements ActionListener {
     private static final Color PAGE_BG = new Color(8, 15, 29);
     private static final Color HERO_BG = new Color(18, 31, 56);
     private static final Color PANEL_BG = new Color(23, 39, 69);
+    private static final Color PANEL_BG_ALT = new Color(13, 26, 48);
     private static final Color CARD_BG = new Color(247, 250, 255);
     private static final Color TEXT_PRIMARY = new Color(244, 247, 252);
     private static final Color TEXT_MUTED = new Color(171, 188, 213);
@@ -50,7 +51,7 @@ public class MetroGUI extends JFrame implements ActionListener {
 
     private void initializeGUI() {
         setTitle("Delhi Metro Navigator");
-        setSize(1200, 900);
+        setSize(1280, 940);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(false);
@@ -60,7 +61,7 @@ public class MetroGUI extends JFrame implements ActionListener {
         JPanel root = new JPanel();
         root.setBackground(PAGE_BG);
         root.setLayout(new BoxLayout(root, BoxLayout.Y_AXIS));
-        root.setBorder(new EmptyBorder(18, 18, 16, 18));
+        root.setBorder(new EmptyBorder(22, 22, 18, 22));
 
         JPanel hero = buildHeroPanel();
         hero.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -83,8 +84,8 @@ public class MetroGUI extends JFrame implements ActionListener {
         statusLabel.setForeground(TEXT_MUTED);
         statusLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         statusLabel.setOpaque(true);
-        statusLabel.setBackground(new Color(10, 20, 36));
-        statusLabel.setBorder(new EmptyBorder(10, 24, 12, 24));
+        statusLabel.setBackground(new Color(7, 15, 29));
+        statusLabel.setBorder(new EmptyBorder(12, 28, 14, 28));
 
         JScrollPane pageScroll = new JScrollPane(root);
         pageScroll.setBorder(null);
@@ -100,41 +101,66 @@ public class MetroGUI extends JFrame implements ActionListener {
     }
 
     private JPanel buildHeroPanel() {
-        JPanel heroPanel = createPanel(HERO_BG, new BorderLayout(20, 0), new EmptyBorder(26, 28, 26, 28));
-        heroPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 220));
+        JPanel heroPanel = new GradientPanel(new BorderLayout(24, 0), new EmptyBorder(28, 30, 28, 30),
+            new Color(18, 35, 67), new Color(8, 77, 122));
+        heroPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 292));
 
         JPanel left = new JPanel();
         left.setOpaque(false);
         left.setLayout(new BoxLayout(left, BoxLayout.Y_AXIS));
 
+        JLabel badge = createHeroBadge("PRODUCT DEMO UI");
         JLabel title = new JLabel("Delhi Metro Navigator");
         title.setForeground(TEXT_PRIMARY);
-        title.setFont(new Font("Segoe UI Semibold", Font.BOLD, 36));
+        title.setFont(new Font("Georgia", Font.BOLD, 40));
 
-        JLabel subtitle = new JLabel("Plan routes with the full path, stop count, fare, ETA, and interchange details.");
+        JLabel subtitle = new JLabel("<html>Plan Delhi Metro journeys with a full route summary, visual station trail, richer trip metrics, and screenshot-ready outputs for your project file.</html>");
         subtitle.setForeground(TEXT_MUTED);
         subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 17));
 
+        JPanel chips = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        chips.setOpaque(false);
+        chips.add(createInfoPill("5 Lines Active", new Color(255, 255, 255, 26), TEXT_PRIMARY));
+        chips.add(createInfoPill(metroGraph.getTotalStations() + " Stations", new Color(255, 255, 255, 22), TEXT_PRIMARY));
+        chips.add(createInfoPill("Route + Fare + ETA", new Color(49, 201, 255, 34), ACCENT));
+
+        badge.setAlignmentX(Component.LEFT_ALIGNMENT);
         title.setAlignmentX(Component.LEFT_ALIGNMENT);
         subtitle.setAlignmentX(Component.LEFT_ALIGNMENT);
+        chips.setAlignmentX(Component.LEFT_ALIGNMENT);
+        left.add(badge);
+        left.add(Box.createVerticalStrut(16));
         left.add(title);
         left.add(Box.createVerticalStrut(12));
         left.add(subtitle);
+        left.add(Box.createVerticalStrut(18));
+        left.add(chips);
+
+        JPanel right = new JPanel();
+        right.setOpaque(false);
+        right.setLayout(new BoxLayout(right, BoxLayout.Y_AXIS));
+        JPanel legend = buildLegendPanel();
+        legend.setAlignmentX(Component.LEFT_ALIGNMENT);
+        JPanel spotlight = buildSpotlightPanel();
+        spotlight.setAlignmentX(Component.LEFT_ALIGNMENT);
+        right.add(legend);
+        right.add(Box.createVerticalStrut(14));
+        right.add(spotlight);
 
         heroPanel.add(left, BorderLayout.CENTER);
-        heroPanel.add(buildLegendPanel(), BorderLayout.EAST);
+        heroPanel.add(right, BorderLayout.EAST);
         return heroPanel;
     }
 
     private JPanel buildControlsPanel() {
-        JPanel controlsPanel = createPanel(PANEL_BG, new BorderLayout(), new EmptyBorder(24, 24, 24, 24));
-        controlsPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 300));
+        JPanel controlsPanel = createPanel(PANEL_BG, new BorderLayout(20, 0), new EmptyBorder(26, 26, 26, 26));
+        controlsPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 320));
 
         JLabel heading = new JLabel("Choose Stations");
         heading.setForeground(TEXT_PRIMARY);
         heading.setFont(new Font("Segoe UI Semibold", Font.BOLD, 24));
 
-        JLabel copy = new JLabel("Select source and destination, then the route map and trip details update below.");
+        JLabel copy = new JLabel("Select your source and destination, then generate a route with timeline, cost, and travel estimate.");
         copy.setForeground(TEXT_MUTED);
         copy.setFont(new Font("Segoe UI", Font.PLAIN, 14));
 
@@ -175,19 +201,29 @@ public class MetroGUI extends JFrame implements ActionListener {
         stack.add(Box.createVerticalStrut(18));
         stack.add(buttons);
 
+        JPanel helperCard = createPanel(PANEL_BG_ALT, new BorderLayout(0, 12), new EmptyBorder(18, 18, 18, 18));
+        helperCard.setPreferredSize(new Dimension(270, 0));
+        helperCard.add(createSideLabel("Quick Capture Guide"), BorderLayout.NORTH);
+
+        JLabel routeHint = new JLabel("<html>Report-friendly routes:<br><br>Samaypur Badli to Rajiv Chowk<br>Hauz Khas to Vaishali<br>Green Park to Hauz Khas<br>Dwarka Sector 21 to Vaishali</html>");
+        routeHint.setForeground(TEXT_MUTED);
+        routeHint.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        helperCard.add(routeHint, BorderLayout.CENTER);
+
         controlsPanel.add(stack, BorderLayout.CENTER);
+        controlsPanel.add(helperCard, BorderLayout.EAST);
         return controlsPanel;
     }
 
     private JPanel buildAnalyticsPanel() {
         JPanel analyticsPanel = createPanel(PANEL_BG, new BorderLayout(), new EmptyBorder(24, 24, 24, 24));
-        analyticsPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 150));
+        analyticsPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 160));
 
         JLabel heading = new JLabel("Trip Snapshot");
         heading.setForeground(TEXT_PRIMARY);
         heading.setFont(new Font("Segoe UI Semibold", Font.BOLD, 22));
 
-        JPanel cards = new JPanel(new GridLayout(1, 4, 14, 0));
+        JPanel cards = new JPanel(new GridLayout(1, 4, 16, 0));
         cards.setOpaque(false);
         stopsCard = new MetricCard("Stops", ACCENT);
         fareCard = new MetricCard("Fare", YELLOW);
@@ -205,7 +241,7 @@ public class MetroGUI extends JFrame implements ActionListener {
 
     private JPanel buildDetailsPanel() {
         JPanel detailsPanel = createPanel(PANEL_BG, new BorderLayout(18, 18), new EmptyBorder(24, 24, 24, 24));
-        detailsPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 860));
+        detailsPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 880));
 
         JPanel titles = new JPanel(new GridLayout(1, 2, 18, 18));
         titles.setOpaque(false);
@@ -216,7 +252,7 @@ public class MetroGUI extends JFrame implements ActionListener {
         JLabel mapTitle = new JLabel("Visual Route Map");
         mapTitle.setForeground(TEXT_PRIMARY);
         mapTitle.setFont(new Font("Segoe UI Semibold", Font.BOLD, 22));
-        JLabel mapCopy = new JLabel("Actual route drawing with station nodes and interchange markers.");
+        JLabel mapCopy = new JLabel("A stylized station trail with line colors and transfer highlights.");
         mapCopy.setForeground(TEXT_MUTED);
         mapCopy.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         mapTitlePanel.add(mapTitle);
@@ -229,7 +265,7 @@ public class MetroGUI extends JFrame implements ActionListener {
         JLabel infoTitle = new JLabel("Route Notes");
         infoTitle.setForeground(TEXT_PRIMARY);
         infoTitle.setFont(new Font("Segoe UI Semibold", Font.BOLD, 22));
-        JLabel infoCopy = new JLabel("Simple station-by-station details for the selected route.");
+        JLabel infoCopy = new JLabel("Full route text, station-by-station timeline, and interchange notes.");
         infoCopy.setForeground(TEXT_MUTED);
         infoCopy.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         infoTitlePanel.add(infoTitle);
@@ -241,17 +277,17 @@ public class MetroGUI extends JFrame implements ActionListener {
 
         JPanel content = new JPanel(new GridLayout(1, 2, 18, 0));
         content.setOpaque(false);
-        content.setMaximumSize(new Dimension(Integer.MAX_VALUE, 760));
+        content.setMaximumSize(new Dimension(Integer.MAX_VALUE, 780));
 
         routeMapPanel = new RouteMapPanel();
-        routeMapPanel.setPreferredSize(new Dimension(560, 760));
-        routeMapPanel.setMinimumSize(new Dimension(560, 760));
+        routeMapPanel.setPreferredSize(new Dimension(580, 780));
+        routeMapPanel.setMinimumSize(new Dimension(580, 780));
 
         resultArea = new JTextArea();
         resultArea.setEditable(false);
         resultArea.setLineWrap(true);
         resultArea.setWrapStyleWord(true);
-        resultArea.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        resultArea.setFont(new Font("Consolas", Font.PLAIN, 14));
         resultArea.setBackground(CARD_BG);
         resultArea.setForeground(TEXT_DARK);
         resultArea.setBorder(new EmptyBorder(16, 16, 16, 16));
@@ -273,19 +309,39 @@ public class MetroGUI extends JFrame implements ActionListener {
     }
 
     private JPanel buildLegendPanel() {
-        JPanel legendPanel = createPanel(new Color(12, 23, 42), new GridLayout(6, 1, 0, 10), new EmptyBorder(18, 20, 18, 20));
-        legendPanel.setPreferredSize(new Dimension(240, 204));
+        JPanel legendPanel = createPanel(new Color(10, 22, 42), new BorderLayout(0, 14), new EmptyBorder(18, 20, 18, 20));
+        legendPanel.setPreferredSize(new Dimension(290, 162));
 
         JLabel title = new JLabel("Line Legend");
         title.setForeground(TEXT_PRIMARY);
-        title.setFont(new Font("Segoe UI Semibold", Font.BOLD, 15));
-        legendPanel.add(title);
-        legendPanel.add(createLegendRow("Yellow Line", YELLOW));
-        legendPanel.add(createLegendRow("Blue Line", BLUE));
-        legendPanel.add(createLegendRow("Pink Line", PINK));
-        legendPanel.add(createLegendRow("Green Line", GREEN));
-        legendPanel.add(createLegendRow("Red Line", RED));
+        title.setFont(new Font("Segoe UI Semibold", Font.BOLD, 16));
+
+        JPanel rows = new JPanel(new GridLayout(3, 2, 12, 12));
+        rows.setOpaque(false);
+        rows.add(createLegendRow("Yellow", YELLOW));
+        rows.add(createLegendRow("Blue", BLUE));
+        rows.add(createLegendRow("Pink", PINK));
+        rows.add(createLegendRow("Green", GREEN));
+        rows.add(createLegendRow("Red", RED));
+        rows.add(createLegendRow("Transfer", WARNING));
+
+        legendPanel.add(title, BorderLayout.NORTH);
+        legendPanel.add(rows, BorderLayout.CENTER);
         return legendPanel;
+    }
+
+    private JPanel buildSpotlightPanel() {
+        JPanel panel = createPanel(new Color(8, 19, 35), new BorderLayout(0, 10), new EmptyBorder(16, 18, 16, 18));
+        panel.setPreferredSize(new Dimension(290, 92));
+
+        JLabel title = createSideLabel("System Snapshot");
+        JLabel copy = new JLabel("<html>Looks cleaner for demos, shows all required metrics, and keeps screenshots readable for Chapter 5.</html>");
+        copy.setForeground(TEXT_MUTED);
+        copy.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+
+        panel.add(title, BorderLayout.NORTH);
+        panel.add(copy, BorderLayout.CENTER);
+        return panel;
     }
 
     private JPanel createFieldBlock(String title, JComboBox<String> dropdown) {
@@ -309,9 +365,9 @@ public class MetroGUI extends JFrame implements ActionListener {
         dropdown.setPreferredSize(new Dimension(300, 54));
         dropdown.setMaximumSize(new Dimension(Integer.MAX_VALUE, 54));
         dropdown.setFont(new Font("Segoe UI", Font.PLAIN, 15));
-        dropdown.setBackground(Color.WHITE);
+        dropdown.setBackground(new Color(250, 252, 255));
         dropdown.setBorder(new CompoundBorder(
-            new LineBorder(new Color(214, 222, 235), 1, true),
+            new LineBorder(new Color(182, 202, 235), 1, true),
             new EmptyBorder(11, 14, 11, 14)
         ));
         dropdown.setRenderer(new StationRenderer());
@@ -324,7 +380,7 @@ public class MetroGUI extends JFrame implements ActionListener {
         button.setForeground(fg);
         button.setFocusPainted(false);
         button.setBorder(new CompoundBorder(
-            new LineBorder(new Color(220, 228, 238), 1, true),
+            new LineBorder(new Color(255, 255, 255, 38), 1, true),
             new EmptyBorder(12, 14, 12, 14)
         ));
         button.setFont(new Font("Segoe UI Semibold", Font.BOLD, 14));
@@ -338,14 +394,15 @@ public class MetroGUI extends JFrame implements ActionListener {
         JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         row.setOpaque(false);
 
-        JLabel swatch = new JLabel(" ");
+        JPanel swatch = new JPanel();
         swatch.setOpaque(true);
         swatch.setBackground(swatchColor);
-        swatch.setPreferredSize(new Dimension(24, 24));
+        swatch.setPreferredSize(new Dimension(18, 18));
+        swatch.setBorder(new LineBorder(new Color(255, 255, 255, 35), 1, true));
 
         JLabel label = new JLabel(text);
-        label.setForeground(TEXT_MUTED);
-        label.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        label.setForeground(TEXT_PRIMARY);
+        label.setFont(new Font("Segoe UI Semibold", Font.BOLD, 13));
 
         row.add(swatch);
         row.add(label);
@@ -355,8 +412,41 @@ public class MetroGUI extends JFrame implements ActionListener {
     private JPanel createPanel(Color bgColor, LayoutManager layout, Border border) {
         JPanel panel = new JPanel(layout);
         panel.setBackground(bgColor);
-        panel.setBorder(border);
+        panel.setBorder(new CompoundBorder(
+            new LineBorder(new Color(255, 255, 255, 18), 1, true),
+            border
+        ));
         return panel;
+    }
+
+    private JLabel createHeroBadge(String text) {
+        JLabel badge = new JLabel(text);
+        badge.setOpaque(true);
+        badge.setBackground(new Color(255, 255, 255, 26));
+        badge.setForeground(TEXT_PRIMARY);
+        badge.setBorder(new EmptyBorder(7, 12, 7, 12));
+        badge.setFont(new Font("Segoe UI Semibold", Font.BOLD, 12));
+        return badge;
+    }
+
+    private JPanel createInfoPill(String text, Color bg, Color fg) {
+        JPanel pill = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        pill.setOpaque(true);
+        pill.setBackground(bg);
+        pill.setBorder(new EmptyBorder(8, 12, 8, 12));
+
+        JLabel label = new JLabel(text);
+        label.setForeground(fg);
+        label.setFont(new Font("Segoe UI Semibold", Font.BOLD, 12));
+        pill.add(label);
+        return pill;
+    }
+
+    private JLabel createSideLabel(String text) {
+        JLabel label = new JLabel(text);
+        label.setForeground(TEXT_PRIMARY);
+        label.setFont(new Font("Segoe UI Semibold", Font.BOLD, 15));
+        return label;
     }
 
     @Override
@@ -556,8 +646,8 @@ public class MetroGUI extends JFrame implements ActionListener {
             setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
             setBackground(new Color(11, 24, 44));
             setBorder(new CompoundBorder(
-                new LineBorder(new Color(accentColor.getRed(), accentColor.getGreen(), accentColor.getBlue(), 115), 1, true),
-                new EmptyBorder(14, 14, 14, 14)
+                new LineBorder(new Color(accentColor.getRed(), accentColor.getGreen(), accentColor.getBlue(), 140), 1, true),
+                new EmptyBorder(16, 16, 16, 16)
             ));
 
             JLabel titleLabel = new JLabel(title);
@@ -567,7 +657,7 @@ public class MetroGUI extends JFrame implements ActionListener {
 
             valueLabel = new JLabel("--");
             valueLabel.setForeground(accentColor);
-            valueLabel.setFont(new Font("Segoe UI Semibold", Font.BOLD, 18));
+            valueLabel.setFont(new Font("Georgia", Font.BOLD, 21));
             valueLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
             add(titleLabel);
@@ -588,7 +678,7 @@ public class MetroGUI extends JFrame implements ActionListener {
             setBackground(CARD_BG);
             setBorder(new CompoundBorder(
                 new LineBorder(new Color(219, 228, 240), 1, true),
-                new EmptyBorder(12, 12, 12, 12)
+                new EmptyBorder(16, 16, 16, 16)
             ));
         }
 
@@ -610,18 +700,31 @@ public class MetroGUI extends JFrame implements ActionListener {
             g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
             if (routePath.isEmpty()) {
+                g2.setColor(new Color(234, 241, 252));
+                g2.fillRoundRect(16, 16, getWidth() - 32, 92, 24, 24);
                 g2.setColor(new Color(100, 118, 145));
-                g2.setFont(new Font("Segoe UI", Font.PLAIN, 18));
-                g2.drawString("Route map will appear here after you search.", 24, 44);
+                g2.setFont(new Font("Georgia", Font.BOLD, 20));
+                g2.drawString("Route map will appear here after you search.", 34, 54);
                 g2.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-                g2.drawString("This panel is drawn directly using Java Swing graphics.", 24, 68);
+                g2.drawString("This panel is drawn directly using Java Swing graphics.", 34, 80);
                 g2.dispose();
                 return;
             }
 
-            int lineX = 176;
-            int startY = 74;
-            int bottomPadding = 56;
+            g2.setColor(new Color(238, 244, 252));
+            g2.fillRoundRect(16, 16, getWidth() - 32, getHeight() - 32, 28, 28);
+            g2.setColor(new Color(221, 229, 241));
+            g2.drawRoundRect(16, 16, getWidth() - 33, getHeight() - 33, 28, 28);
+            g2.setColor(TEXT_DARK);
+            g2.setFont(new Font("Georgia", Font.BOLD, 18));
+            g2.drawString("Journey Map", 34, 48);
+            g2.setColor(new Color(105, 121, 145));
+            g2.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+            g2.drawString("Colored connectors show line continuity and transfer points.", 34, 68);
+
+            int lineX = 182;
+            int startY = 112;
+            int bottomPadding = 72;
             int availableHeight = Math.max(getHeight() - startY - bottomPadding, 120);
             int stepY = routePath.size() == 1 ? 0 : availableHeight / (routePath.size() - 1);
 
@@ -658,7 +761,7 @@ public class MetroGUI extends JFrame implements ActionListener {
                 g2.drawOval(point.x - 11, point.y - 11, 22, 22);
 
                 if (i == 0 || i == points.size() - 1) {
-                    g2.setColor(new Color(255, 255, 255, 210));
+                    g2.setColor(new Color(255, 255, 255, 228));
                     g2.fillRoundRect(point.x - 30, point.y - 42, 64, 20, 10, 10);
                     g2.setColor(i == 0 ? SUCCESS.darker() : WARNING.darker());
                     String tag = i == 0 ? "START" : "END";
@@ -723,6 +826,37 @@ public class MetroGUI extends JFrame implements ActionListener {
                 String line = lines.get(i);
                 g2.drawString(line, x, y + (i * lineHeight));
             }
+        }
+    }
+
+    private class GradientPanel extends JPanel {
+        private final Color startColor;
+        private final Color endColor;
+
+        GradientPanel(LayoutManager layout, Border border, Color startColor, Color endColor) {
+            super(layout);
+            this.startColor = startColor;
+            this.endColor = endColor;
+            setOpaque(false);
+            setBorder(new CompoundBorder(
+                new LineBorder(new Color(255, 255, 255, 20), 1, true),
+                border
+            ));
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            GradientPaint paint = new GradientPaint(0, 0, startColor, getWidth(), getHeight(), endColor);
+            g2.setPaint(paint);
+            g2.fillRoundRect(0, 0, getWidth(), getHeight(), 28, 28);
+            g2.setColor(new Color(255, 255, 255, 18));
+            g2.fillOval(getWidth() - 210, -40, 240, 240);
+            g2.setColor(new Color(49, 201, 255, 26));
+            g2.fillOval(getWidth() - 320, 46, 170, 170);
+            g2.dispose();
+            super.paintComponent(g);
         }
     }
 }
