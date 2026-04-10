@@ -6,6 +6,9 @@ import java.util.*;
 
 public class Graph {
 
+    private static final int STATION_HOP = 2;
+    private static final int INTERCHANGE_HOP = 4;
+
     public static class RouteDetails {
         private final String sourceName;
         private final String destinationName;
@@ -124,15 +127,15 @@ public class Graph {
         addStation(36, "HUDA City Centre",    "Yellow");
 
         // Yellow Line edges
-        addEdge(0,1,2); addEdge(1,2,2); addEdge(2,3,2); addEdge(3,4,2);
-        addEdge(4,5,2); addEdge(5,6,2); addEdge(6,7,2); addEdge(7,8,2);
-        addEdge(8,9,2); addEdge(9,10,2); addEdge(10,11,2); addEdge(11,12,2);
-        addEdge(12,13,2); addEdge(13,14,2); addEdge(14,15,2); addEdge(15,16,2);
-        addEdge(16,17,2); addEdge(17,18,2); addEdge(18,19,2); addEdge(19,20,2);
-        addEdge(20,21,2); addEdge(21,22,2); addEdge(22,23,2); addEdge(23,24,2);
-        addEdge(24,25,2); addEdge(25,26,2); addEdge(26,27,2); addEdge(27,28,2);
-        addEdge(28,29,2); addEdge(29,30,2); addEdge(30,31,2); addEdge(31,32,2);
-        addEdge(32,33,2); addEdge(33,34,2); addEdge(34,35,2); addEdge(35,36,2);
+        addEdge(0,1,STATION_HOP); addEdge(1,2,STATION_HOP); addEdge(2,3,STATION_HOP); addEdge(3,4,STATION_HOP);
+        addEdge(4,5,STATION_HOP); addEdge(5,6,STATION_HOP); addEdge(6,7,STATION_HOP); addEdge(7,8,STATION_HOP);
+        addEdge(8,9,STATION_HOP); addEdge(9,10,STATION_HOP); addEdge(10,11,STATION_HOP); addEdge(11,12,STATION_HOP);
+        addEdge(12,13,STATION_HOP); addEdge(13,14,STATION_HOP); addEdge(14,15,STATION_HOP); addEdge(15,16,STATION_HOP);
+        addEdge(16,17,STATION_HOP); addEdge(17,18,STATION_HOP); addEdge(18,19,STATION_HOP); addEdge(19,20,STATION_HOP);
+        addEdge(20,21,STATION_HOP); addEdge(21,22,STATION_HOP); addEdge(22,23,STATION_HOP); addEdge(23,24,STATION_HOP);
+        addEdge(24,25,STATION_HOP); addEdge(25,26,STATION_HOP); addEdge(26,27,STATION_HOP); addEdge(27,28,STATION_HOP);
+        addEdge(28,29,STATION_HOP); addEdge(29,30,STATION_HOP); addEdge(30,31,STATION_HOP); addEdge(31,32,STATION_HOP);
+        addEdge(32,33,STATION_HOP); addEdge(33,34,STATION_HOP); addEdge(34,35,STATION_HOP); addEdge(35,36,STATION_HOP);
 
         // --- BLUE LINE (Dwarka Sector 21 to Vaishali/Noida) ---
         addStation(37, "Dwarka Sector 21",   "Blue");
@@ -175,22 +178,22 @@ public class Graph {
         addStation(74, "Vaishali",           "Blue");
 
         // Blue Line edges
-        addEdge(37,38,2); addEdge(38,39,2); addEdge(39,40,2); addEdge(40,41,2);
-        addEdge(41,42,2); addEdge(42,43,2); addEdge(43,44,2); addEdge(44,45,2);
-        addEdge(45,46,2); addEdge(46,47,2); addEdge(47,48,2); addEdge(48,49,2);
-        addEdge(49,50,2); addEdge(50,51,2); addEdge(51,52,2); addEdge(52,53,2);
-        addEdge(53,54,2); addEdge(54,55,2); addEdge(55,56,2); addEdge(56,57,2);
-        addEdge(57,58,2); addEdge(58,59,2); addEdge(59,60,2); addEdge(60,61,2);
-        addEdge(61,62,2); addEdge(62,63,2); addEdge(63,64,2); addEdge(64,65,2);
-        addEdge(65,66,2); addEdge(66,67,2); addEdge(67,68,2); addEdge(68,69,2);
-        addEdge(69,70,2); addEdge(70,71,2); addEdge(71,72,2); addEdge(72,73,2);
-        addEdge(73,74,2);
+        addEdge(37,38,STATION_HOP); addEdge(38,39,STATION_HOP); addEdge(39,40,STATION_HOP); addEdge(40,41,STATION_HOP);
+        addEdge(41,42,STATION_HOP); addEdge(42,43,STATION_HOP); addEdge(43,44,STATION_HOP); addEdge(44,45,STATION_HOP);
+        addEdge(45,46,STATION_HOP); addEdge(46,47,STATION_HOP); addEdge(47,48,STATION_HOP); addEdge(48,49,STATION_HOP);
+        addEdge(49,50,STATION_HOP); addEdge(50,51,STATION_HOP); addEdge(51,52,STATION_HOP); addEdge(52,53,STATION_HOP);
+        addEdge(53,54,STATION_HOP); addEdge(54,55,STATION_HOP); addEdge(55,56,STATION_HOP); addEdge(56,57,STATION_HOP);
+        addEdge(57,58,STATION_HOP); addEdge(58,59,STATION_HOP); addEdge(59,60,STATION_HOP); addEdge(60,61,STATION_HOP);
+        addEdge(61,62,STATION_HOP); addEdge(62,63,STATION_HOP); addEdge(63,64,STATION_HOP); addEdge(64,65,STATION_HOP);
+        addEdge(65,66,STATION_HOP); addEdge(66,67,STATION_HOP); addEdge(67,68,STATION_HOP); addEdge(68,69,STATION_HOP);
+        addEdge(69,70,STATION_HOP); addEdge(70,71,STATION_HOP); addEdge(71,72,STATION_HOP); addEdge(72,73,STATION_HOP);
+        addEdge(73,74,STATION_HOP);
 
         // Interchange: Rajiv Chowk Yellow <-> Rajiv Chowk Blue
-        addEdge(15, 65, 0);
+        addEdge(15, 65, INTERCHANGE_HOP);
 
         // Interchange: Kashmere Gate Yellow <-> Blue (connecting point)
-        addEdge(11, 64, 3);
+        addEdge(11, 64, INTERCHANGE_HOP + 2);
 
         // --- PINK LINE (Majlis Park to Lajpat Nagar segment) ---
         addStation(75, "Majlis Park", "Pink");
@@ -201,12 +204,12 @@ public class Graph {
         addStation(80, "Durgabai Deshmukh South Campus", "Pink");
         addStation(81, "Lajpat Nagar", "Pink");
 
-        addEdge(75, 76, 2); addEdge(76, 77, 2); addEdge(77, 78, 3);
-        addEdge(78, 79, 2); addEdge(79, 80, 2); addEdge(80, 81, 3);
+        addEdge(75, 76, STATION_HOP); addEdge(76, 77, STATION_HOP); addEdge(77, 78, 3);
+        addEdge(78, 79, STATION_HOP); addEdge(79, 80, STATION_HOP); addEdge(80, 81, 3);
 
         // Pink line interchanges
-        addEdge(5, 76, 0);   // Azadpur Yellow <-> Azadpur Pink
-        addEdge(55, 78, 0);  // Rajouri Garden Blue <-> Rajouri Garden Pink
+        addEdge(5, 76, INTERCHANGE_HOP);   // Azadpur Yellow <-> Azadpur Pink
+        addEdge(55, 78, INTERCHANGE_HOP);  // Rajouri Garden Blue <-> Rajouri Garden Pink
 
         // --- GREEN LINE (Kirti Nagar to Brigadier Hoshiar Singh segment) ---
         addStation(82, "Satguru Ram Singh Marg", "Green");
@@ -217,9 +220,52 @@ public class Graph {
         addStation(87, "Maharaja Surajmal Stadium", "Green");
         addStation(88, "Brigadier Hoshiar Singh", "Green");
 
-        addEdge(58, 82, 2); addEdge(82, 83, 2); addEdge(83, 84, 2);
-        addEdge(84, 85, 2); addEdge(85, 86, 2); addEdge(86, 87, 2);
-        addEdge(87, 88, 2);
+        addEdge(58, 82, STATION_HOP); addEdge(82, 83, STATION_HOP); addEdge(83, 84, STATION_HOP);
+        addEdge(84, 85, STATION_HOP); addEdge(85, 86, STATION_HOP); addEdge(86, 87, STATION_HOP);
+        addEdge(87, 88, STATION_HOP);
+
+        // --- RED LINE (Rithala to Shaheed Sthal) ---
+        addStation(89,  "Rithala",                 "Red");
+        addStation(90,  "Rohini West",             "Red");
+        addStation(91,  "Rohini East",             "Red");
+        addStation(92,  "Pitampura",               "Red");
+        addStation(93,  "Kohat Enclave",           "Red");
+        addStation(94,  "Netaji Subhash Place (Red)", "Red");
+        addStation(95,  "Keshav Puram",            "Red");
+        addStation(96,  "Kanhaiya Nagar",          "Red");
+        addStation(97,  "Inderlok",                "Red");
+        addStation(98,  "Shastri Nagar",           "Red");
+        addStation(99,  "Pratap Nagar",            "Red");
+        addStation(100, "Pulbangash",              "Red");
+        addStation(101, "Tis Hazari",              "Red");
+        addStation(102, "Kashmere Gate (Red)",     "Red");
+        addStation(103, "Shastri Park",            "Red");
+        addStation(104, "Seelampur",               "Red");
+        addStation(105, "Welcome",                 "Red");
+        addStation(106, "Shahdara",                "Red");
+        addStation(107, "Mansarovar Park",         "Red");
+        addStation(108, "Jhilmil",                 "Red");
+        addStation(109, "Dilshad Garden",          "Red");
+        addStation(110, "Shaheed Nagar",           "Red");
+        addStation(111, "Raj Bagh",                "Red");
+        addStation(112, "Rajendra Nagar",          "Red");
+        addStation(113, "Shyam Park",              "Red");
+        addStation(114, "Mohan Nagar",             "Red");
+        addStation(115, "Arthala",                 "Red");
+        addStation(116, "Hindon River",            "Red");
+        addStation(117, "Shaheed Sthal",           "Red");
+
+        addEdge(89, 90, STATION_HOP);   addEdge(90, 91, STATION_HOP);   addEdge(91, 92, STATION_HOP);   addEdge(92, 93, STATION_HOP);
+        addEdge(93, 94, STATION_HOP);   addEdge(94, 95, STATION_HOP);   addEdge(95, 96, STATION_HOP);   addEdge(96, 97, STATION_HOP);
+        addEdge(97, 98, STATION_HOP);   addEdge(98, 99, STATION_HOP);   addEdge(99, 100, STATION_HOP);  addEdge(100, 101, STATION_HOP);
+        addEdge(101, 102, STATION_HOP); addEdge(102, 103, STATION_HOP); addEdge(103, 104, STATION_HOP); addEdge(104, 105, STATION_HOP);
+        addEdge(105, 106, STATION_HOP); addEdge(106, 107, STATION_HOP); addEdge(107, 108, STATION_HOP); addEdge(108, 109, STATION_HOP);
+        addEdge(109, 110, STATION_HOP); addEdge(110, 111, STATION_HOP); addEdge(111, 112, STATION_HOP); addEdge(112, 113, STATION_HOP);
+        addEdge(113, 114, STATION_HOP); addEdge(114, 115, STATION_HOP); addEdge(115, 116, STATION_HOP); addEdge(116, 117, STATION_HOP);
+
+        // Red line interchanges
+        addEdge(77, 94, INTERCHANGE_HOP);   // Netaji Subhash Place Pink <-> Red
+        addEdge(11, 102, INTERCHANGE_HOP);  // Kashmere Gate Yellow <-> Red
 
         totalStations = stations.size();
     }
@@ -271,7 +317,7 @@ public class Graph {
         if (stops <= 2)  return 10;
         if (stops <= 5)  return 20;
         if (stops <= 10) return 30;
-        if (stops <= 20) return 40;
+        if (stops <= 15) return 40;
         return 50;
     }
 

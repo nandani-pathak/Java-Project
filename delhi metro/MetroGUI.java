@@ -25,6 +25,7 @@ public class MetroGUI extends JFrame implements ActionListener {
     private static final Color GREEN = new Color(68, 186, 106);
     private static final Color YELLOW = new Color(225, 183, 24);
     private static final Color BLUE = new Color(63, 131, 230);
+    private static final Color RED = new Color(224, 68, 68);
 
     private JComboBox<String> sourceDropdown;
     private JComboBox<String> destinationDropdown;
@@ -272,8 +273,8 @@ public class MetroGUI extends JFrame implements ActionListener {
     }
 
     private JPanel buildLegendPanel() {
-        JPanel legendPanel = createPanel(new Color(12, 23, 42), new GridLayout(5, 1, 0, 10), new EmptyBorder(18, 20, 18, 20));
-        legendPanel.setPreferredSize(new Dimension(240, 170));
+        JPanel legendPanel = createPanel(new Color(12, 23, 42), new GridLayout(6, 1, 0, 10), new EmptyBorder(18, 20, 18, 20));
+        legendPanel.setPreferredSize(new Dimension(240, 204));
 
         JLabel title = new JLabel("Line Legend");
         title.setForeground(TEXT_PRIMARY);
@@ -283,6 +284,7 @@ public class MetroGUI extends JFrame implements ActionListener {
         legendPanel.add(createLegendRow("Blue Line", BLUE));
         legendPanel.add(createLegendRow("Pink Line", PINK));
         legendPanel.add(createLegendRow("Green Line", GREEN));
+        legendPanel.add(createLegendRow("Red Line", RED));
         return legendPanel;
     }
 
@@ -522,6 +524,8 @@ public class MetroGUI extends JFrame implements ActionListener {
                 return PINK;
             case "Green":
                 return GREEN;
+            case "Red":
+                return RED;
             default:
                 return new Color(106, 124, 150);
         }
