@@ -20,6 +20,7 @@ public class MetroGUI extends JFrame implements ActionListener {
     private static final Color ACCENT = new Color(49, 201, 255);
     private static final Color SUCCESS = new Color(107, 225, 148);
     private static final Color WARNING = new Color(255, 139, 104);
+    private static final Color ERROR = new Color(210, 57, 57);
     private static final Color PINK = new Color(221, 90, 163);
     private static final Color GREEN = new Color(68, 186, 106);
     private static final Color YELLOW = new Color(225, 183, 24);
@@ -47,7 +48,7 @@ public class MetroGUI extends JFrame implements ActionListener {
     }
 
     private void initializeGUI() {
-        setTitle("Delhi Metro Navigator TEST123");
+        setTitle("Delhi Metro Navigator");
         setSize(1200, 900);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -80,7 +81,9 @@ public class MetroGUI extends JFrame implements ActionListener {
         statusLabel = new JLabel("Ready to plan your route across " + metroGraph.getTotalStations() + " stations.");
         statusLabel.setForeground(TEXT_MUTED);
         statusLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        statusLabel.setBorder(new EmptyBorder(0, 24, 14, 24));
+        statusLabel.setOpaque(true);
+        statusLabel.setBackground(new Color(10, 20, 36));
+        statusLabel.setBorder(new EmptyBorder(10, 24, 12, 24));
 
         JScrollPane pageScroll = new JScrollPane(root);
         pageScroll.setBorder(null);
@@ -107,7 +110,7 @@ public class MetroGUI extends JFrame implements ActionListener {
         title.setForeground(TEXT_PRIMARY);
         title.setFont(new Font("Segoe UI Semibold", Font.BOLD, 36));
 
-        JLabel subtitle = new JLabel("Route drawing, fare, ETA, and station timeline in one clean Java project.");
+        JLabel subtitle = new JLabel("Plan routes with the full path, stop count, fare, ETA, and interchange details.");
         subtitle.setForeground(TEXT_MUTED);
         subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 17));
 
@@ -377,39 +380,46 @@ public class MetroGUI extends JFrame implements ActionListener {
 
         if (sourceName.equals(destName)) {
             showError("Source and destination cannot be the same station.");
+            statusLabel.setForeground(ERROR);
             statusLabel.setText("Select two different stations to continue.");
             return;
         }
 
         try {
             Graph.RouteDetails details = metroGraph.findRouteDetails(sourceName, destName);
+            applyResultStyle(false);
             stopsCard.setValue(String.valueOf(details.getStops()));
-            fareCard.setValue("Rs " + details.getFare());
+            fareCard.setValue("\u20B9" + details.getFare());
             timeCard.setValue(details.getEstimatedMinutes() + " min");
             interchangeCard.setValue(String.valueOf(details.getInterchanges().size()));
             routeMapPanel.setRoute(details.getPath());
             resultArea.setText(buildResultText(details));
             resultArea.setCaretPosition(0);
-            statusLabel.setText(
-                "Route ready from " + details.getSourceName() + " to " + details.getDestinationName()
-                    + " | " + details.getStops() + " stops | Rs " + details.getFare()
-            );
+            statusLabel.setForeground(SUCCESS);
+            statusLabel.setText("Route found! Stops: " + details.getStops()
+                + " | Fare: \u20B9" + details.getFare()
+                + " | ETA: " + details.getEstimatedMinutes() + " min");
         } catch (InvalidStationException ex) {
             showError(ex.getMessage());
-            statusLabel.setText("Unable to calculate route right now.");
+            statusLabel.setForeground(ERROR);
+            statusLabel.setText("Route unavailable. " + ex.getMessage());
         }
     }
 
     private String buildResultText(Graph.RouteDetails details) {
         StringBuilder sb = new StringBuilder();
-        sb.append("BEST ROUTE\n");
+        sb.append("ROUTE FOUND!\n");
         sb.append("--------------------------------------------------\n");
         sb.append("From        : ").append(details.getSourceName()).append("\n");
         sb.append("To          : ").append(details.getDestinationName()).append("\n");
-        sb.append("Fare        : Rs ").append(details.getFare()).append("\n");
+        sb.append("Fare        : \u20B9").append(details.getFare()).append("\n");
         sb.append("ETA         : ").append(details.getEstimatedMinutes()).append(" min\n");
         sb.append("Stops       : ").append(details.getStops()).append("\n");
         sb.append("Interchange : ").append(details.getInterchanges().size()).append("\n\n");
+
+        sb.append("FULL ROUTE\n");
+        sb.append("--------------------------------------------------\n");
+        sb.append(buildFullRouteLine(details.getPath())).append("\n\n");
 
         sb.append("STATION TIMELINE\n");
         sb.append("--------------------------------------------------\n");
@@ -444,9 +454,25 @@ public class MetroGUI extends JFrame implements ActionListener {
         return sb.toString();
     }
 
+    private String buildFullRouteLine(List<Integer> path) {
+        StringBuilder route = new StringBuilder();
+        for (int i = 0; i < path.size(); i++) {
+            if (i > 0) {
+                route.append(" -> ");
+            }
+            route.append(metroGraph.getStationName(path.get(i)));
+        }
+        return route.toString();
+    }
+
+    private void applyResultStyle(boolean isError) {
+        resultArea.setForeground(isError ? ERROR : TEXT_DARK);
+    }
+
     private void showError(String message) {
         resetCards();
         routeMapPanel.clearRoute();
+        applyResultStyle(true);
         resultArea.setText("ROUTE UNAVAILABLE\n-----------------\n" + message);
         resultArea.setCaretPosition(0);
     }
@@ -455,6 +481,7 @@ public class MetroGUI extends JFrame implements ActionListener {
         sourceDropdown.setSelectedIndex(0);
         destinationDropdown.setSelectedIndex(Math.min(8, destinationDropdown.getItemCount() - 1));
         resetRouteView();
+        statusLabel.setForeground(TEXT_MUTED);
         statusLabel.setText("Selections reset. Ready for a new search.");
     }
 
@@ -463,15 +490,17 @@ public class MetroGUI extends JFrame implements ActionListener {
         Object destination = destinationDropdown.getSelectedItem();
         sourceDropdown.setSelectedItem(destination);
         destinationDropdown.setSelectedItem(source);
+        statusLabel.setForeground(TEXT_MUTED);
         statusLabel.setText("Stations swapped. You can search the reverse trip now.");
     }
 
     private void resetRouteView() {
+        applyResultStyle(false);
         resetCards();
         routeMapPanel.clearRoute();
         resultArea.setText(
             "Select source and destination stations, then click 'Find Route'.\n\n"
-                + "The selected route details will appear here.\n"
+                + "The full route, stop count, fare, ETA, and interchange details will appear here.\n"
         );
         resultArea.setCaretPosition(0);
     }
