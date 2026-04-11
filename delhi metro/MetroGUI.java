@@ -41,6 +41,7 @@ public class MetroGUI extends JFrame implements ActionListener {
     private MetricCard timeCard;
     private MetricCard interchangeCard;
     private RouteMapPanel routeMapPanel;
+    private JScrollPane routeMapScroll;
 
     private final Graph metroGraph;
 
@@ -202,7 +203,7 @@ public class MetroGUI extends JFrame implements ActionListener {
         stack.add(buttons);
 
         JPanel helperCard = createPanel(PANEL_BG_ALT, new BorderLayout(0, 12), new EmptyBorder(18, 18, 18, 18));
-        helperCard.setPreferredSize(new Dimension(270, 0));
+        helperCard.setPreferredSize(new Dimension(220, 0));
         helperCard.add(createSideLabel("Quick Capture Guide"), BorderLayout.NORTH);
 
         JLabel routeHint = new JLabel("<html>Report-friendly routes:<br><br>Samaypur Badli to Rajiv Chowk<br>Hauz Khas to Vaishali<br>Green Park to Hauz Khas<br>Dwarka Sector 21 to Vaishali</html>");
@@ -252,7 +253,7 @@ public class MetroGUI extends JFrame implements ActionListener {
         JLabel mapTitle = new JLabel("Visual Route Map");
         mapTitle.setForeground(TEXT_PRIMARY);
         mapTitle.setFont(new Font("Segoe UI Semibold", Font.BOLD, 22));
-        JLabel mapCopy = new JLabel("A stylized station trail with line colors and transfer highlights.");
+        JLabel mapCopy = new JLabel("A stylized station trail with line colors and transfer highlights. Drag inside the map to pan.");
         mapCopy.setForeground(TEXT_MUTED);
         mapCopy.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         mapTitlePanel.add(mapTitle);
@@ -280,8 +281,17 @@ public class MetroGUI extends JFrame implements ActionListener {
         content.setMaximumSize(new Dimension(Integer.MAX_VALUE, 780));
 
         routeMapPanel = new RouteMapPanel();
-        routeMapPanel.setPreferredSize(new Dimension(580, 780));
-        routeMapPanel.setMinimumSize(new Dimension(580, 780));
+        routeMapPanel.setPreferredSize(new Dimension(720, 920));
+        routeMapPanel.setMinimumSize(new Dimension(720, 920));
+
+        routeMapScroll = new JScrollPane(routeMapPanel);
+        routeMapScroll.setBorder(new CompoundBorder(
+            new LineBorder(new Color(219, 228, 240), 1, true),
+            new EmptyBorder(0, 0, 0, 0)
+        ));
+        routeMapScroll.getViewport().setBackground(CARD_BG);
+        routeMapScroll.getVerticalScrollBar().setUnitIncrement(18);
+        routeMapScroll.getHorizontalScrollBar().setUnitIncrement(18);
 
         resultArea = new JTextArea();
         resultArea.setEditable(false);
@@ -300,7 +310,7 @@ public class MetroGUI extends JFrame implements ActionListener {
         resultScroll.getViewport().setBackground(CARD_BG);
         resultScroll.getVerticalScrollBar().setUnitIncrement(16);
 
-        content.add(routeMapPanel);
+        content.add(routeMapScroll);
         content.add(resultScroll);
 
         detailsPanel.add(titles, BorderLayout.NORTH);
@@ -310,13 +320,13 @@ public class MetroGUI extends JFrame implements ActionListener {
 
     private JPanel buildLegendPanel() {
         JPanel legendPanel = createPanel(new Color(10, 22, 42), new BorderLayout(0, 14), new EmptyBorder(18, 20, 18, 20));
-        legendPanel.setPreferredSize(new Dimension(290, 162));
+        legendPanel.setPreferredSize(new Dimension(226, 190));
 
         JLabel title = new JLabel("Line Legend");
         title.setForeground(TEXT_PRIMARY);
         title.setFont(new Font("Segoe UI Semibold", Font.BOLD, 16));
 
-        JPanel rows = new JPanel(new GridLayout(3, 2, 12, 12));
+        JPanel rows = new JPanel(new GridLayout(3, 2, 8, 10));
         rows.setOpaque(false);
         rows.add(createLegendRow("Yellow", YELLOW));
         rows.add(createLegendRow("Blue", BLUE));
@@ -332,7 +342,7 @@ public class MetroGUI extends JFrame implements ActionListener {
 
     private JPanel buildSpotlightPanel() {
         JPanel panel = createPanel(new Color(8, 19, 35), new BorderLayout(0, 10), new EmptyBorder(16, 18, 16, 18));
-        panel.setPreferredSize(new Dimension(290, 92));
+        panel.setPreferredSize(new Dimension(226, 104));
 
         JLabel title = createSideLabel("System Snapshot");
         JLabel copy = new JLabel("<html>Looks cleaner for demos, shows all required metrics, and keeps screenshots readable for Chapter 5.</html>");
@@ -391,7 +401,7 @@ public class MetroGUI extends JFrame implements ActionListener {
     }
 
     private JPanel createLegendRow(String text, Color swatchColor) {
-        JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
         row.setOpaque(false);
 
         JPanel swatch = new JPanel();
@@ -402,7 +412,7 @@ public class MetroGUI extends JFrame implements ActionListener {
 
         JLabel label = new JLabel(text);
         label.setForeground(TEXT_PRIMARY);
-        label.setFont(new Font("Segoe UI Semibold", Font.BOLD, 13));
+        label.setFont(new Font("Segoe UI Semibold", Font.BOLD, 12));
 
         row.add(swatch);
         row.add(label);
@@ -500,14 +510,22 @@ public class MetroGUI extends JFrame implements ActionListener {
 
     private String buildResultText(Graph.RouteDetails details) {
         StringBuilder sb = new StringBuilder();
-        sb.append("ROUTE FOUND!\n");
+        sb.append("TRIP SUMMARY\n");
         sb.append("--------------------------------------------------\n");
         sb.append("From        : ").append(details.getSourceName()).append("\n");
         sb.append("To          : ").append(details.getDestinationName()).append("\n");
+        sb.append("Lines Used  : ").append(buildLineSummary(details.getPath())).append("\n");
         sb.append("Fare        : \u20B9").append(details.getFare()).append("\n");
         sb.append("ETA         : ").append(details.getEstimatedMinutes()).append(" min\n");
         sb.append("Stops       : ").append(details.getStops()).append("\n");
         sb.append("Interchange : ").append(details.getInterchanges().size()).append("\n\n");
+
+        sb.append("ROUTE NOTES\n");
+        sb.append("--------------------------------------------------\n");
+        sb.append(buildTransferSummary(details)).append("\n");
+        sb.append("First stop  : ").append(details.getSourceName()).append("\n");
+        sb.append("Final stop  : ").append(details.getDestinationName()).append("\n");
+        sb.append("Quick view  : ").append(buildStopsPreview(details.getPath())).append("\n\n");
 
         sb.append("FULL ROUTE\n");
         sb.append("--------------------------------------------------\n");
@@ -533,17 +551,51 @@ public class MetroGUI extends JFrame implements ActionListener {
             sb.append(String.format("%-8s %s [%s Line]%n", label, stationName, lineName));
         }
 
-        sb.append("\nINTERCHANGE NOTES\n");
-        sb.append("--------------------------------------------------\n");
-        if (details.getInterchanges().isEmpty()) {
-            sb.append("No interchanges needed for this journey.\n");
-        } else {
-            for (String interchange : details.getInterchanges()) {
-                sb.append("- ").append(interchange).append("\n");
+        return sb.toString();
+    }
+
+    private String buildLineSummary(List<Integer> path) {
+        List<String> lines = new ArrayList<>();
+        for (int stationId : path) {
+            String line = metroGraph.getStationLine(stationId);
+            if (lines.isEmpty() || !lines.get(lines.size() - 1).equals(line)) {
+                lines.add(line);
             }
         }
+        return String.join(" -> ", lines);
+    }
 
+    private String buildTransferSummary(Graph.RouteDetails details) {
+        if (details.getInterchanges().isEmpty()) {
+            return "Direct trip. No line change needed.";
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("Change at ");
+        for (int i = 0; i < details.getInterchanges().size(); i++) {
+            if (i > 0) {
+                sb.append(i == details.getInterchanges().size() - 1 ? " and " : ", ");
+            }
+            sb.append(details.getInterchanges().get(i));
+        }
+        sb.append('.');
         return sb.toString();
+    }
+
+    private String buildStopsPreview(List<Integer> path) {
+        if (path.isEmpty()) {
+            return "--";
+        }
+        if (path.size() <= 6) {
+            return buildFullRouteLine(path);
+        }
+        return metroGraph.getStationName(path.get(0))
+            + " -> "
+            + metroGraph.getStationName(path.get(1))
+            + " -> ... -> "
+            + metroGraph.getStationName(path.get(path.size() - 2))
+            + " -> "
+            + metroGraph.getStationName(path.get(path.size() - 1));
     }
 
     private String buildFullRouteLine(List<Integer> path) {
@@ -673,6 +725,8 @@ public class MetroGUI extends JFrame implements ActionListener {
 
     private class RouteMapPanel extends JPanel {
         private List<Integer> routePath = new ArrayList<>();
+        private Point dragAnchor;
+        private Point viewAnchor;
 
         RouteMapPanel() {
             setBackground(CARD_BG);
@@ -680,16 +734,67 @@ public class MetroGUI extends JFrame implements ActionListener {
                 new LineBorder(new Color(219, 228, 240), 1, true),
                 new EmptyBorder(16, 16, 16, 16)
             ));
+            setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+            MouseAdapter dragHandler = new MouseAdapter() {
+                @Override
+                public void mousePressed(MouseEvent e) {
+                    JViewport viewport = (JViewport) SwingUtilities.getAncestorOfClass(JViewport.class, RouteMapPanel.this);
+                    if (viewport == null) {
+                        return;
+                    }
+                    dragAnchor = e.getPoint();
+                    viewAnchor = viewport.getViewPosition();
+                    setCursor(new Cursor(Cursor.MOVE_CURSOR));
+                }
+
+                @Override
+                public void mouseReleased(MouseEvent e) {
+                    dragAnchor = null;
+                    viewAnchor = null;
+                    setCursor(new Cursor(Cursor.HAND_CURSOR));
+                }
+
+                @Override
+                public void mouseDragged(MouseEvent e) {
+                    JViewport viewport = (JViewport) SwingUtilities.getAncestorOfClass(JViewport.class, RouteMapPanel.this);
+                    if (viewport == null || dragAnchor == null || viewAnchor == null) {
+                        return;
+                    }
+
+                    int deltaX = dragAnchor.x - e.getX();
+                    int deltaY = dragAnchor.y - e.getY();
+                    int maxX = Math.max(getWidth() - viewport.getWidth(), 0);
+                    int maxY = Math.max(getHeight() - viewport.getHeight(), 0);
+                    int nextX = Math.max(0, Math.min(viewAnchor.x + deltaX, maxX));
+                    int nextY = Math.max(0, Math.min(viewAnchor.y + deltaY, maxY));
+                    viewport.setViewPosition(new Point(nextX, nextY));
+                }
+            };
+
+            addMouseListener(dragHandler);
+            addMouseMotionListener(dragHandler);
         }
 
         void setRoute(List<Integer> path) {
             routePath = new ArrayList<>(path);
+            updateCanvasSize();
             repaint();
         }
 
         void clearRoute() {
             routePath.clear();
+            updateCanvasSize();
             repaint();
+        }
+
+        private void updateCanvasSize() {
+            int height = routePath.isEmpty() ? 920 : Math.max(920, 180 + (routePath.size() * 36));
+            setPreferredSize(new Dimension(720, height));
+            revalidate();
+            if (routeMapScroll != null) {
+                SwingUtilities.invokeLater(() -> routeMapScroll.getViewport().setViewPosition(new Point(0, 0)));
+            }
         }
 
         @Override
@@ -756,7 +861,7 @@ public class MetroGUI extends JFrame implements ActionListener {
 
                 g2.setColor(Color.WHITE);
                 g2.fillOval(point.x - 11, point.y - 11, 22, 22);
-                g2.setColor(lineColor);
+                g2.setColor(isInterchange(i) ? WARNING : lineColor);
                 g2.setStroke(new BasicStroke(5f));
                 g2.drawOval(point.x - 11, point.y - 11, 22, 22);
 
