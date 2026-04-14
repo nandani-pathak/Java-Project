@@ -20,7 +20,6 @@ import java.util.Objects;
 public class MetroNavigatorView extends JFrame {
     private static final Color PAGE_BG = new Color(8, 15, 27);
     private static final Color PANEL_BG = new Color(16, 29, 47);
-    private static final Color PANEL_ALT = new Color(10, 21, 36);
     private static final Color CARD_BG = new Color(247, 249, 253);
     private static final Color TEXT_PRIMARY = new Color(244, 247, 251);
     private static final Color TEXT_MUTED = new Color(193, 207, 225);
@@ -209,20 +208,25 @@ public class MetroNavigatorView extends JFrame {
         hero.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(255, 255, 255, 30), 1, true), new EmptyBorder(28, 28, 28, 28)));
         JPanel left = transparentPanel();
         left.setLayout(new BoxLayout(left, BoxLayout.Y_AXIS));
+        left.setAlignmentX(Component.CENTER_ALIGNMENT);
         JLabel title = new JLabel("Delhi Metro Navigator");
         title.setForeground(TEXT_PRIMARY);
         title.setFont(new Font("Georgia", Font.BOLD, 38));
-        JLabel subtitle = new JLabel("<html>Plan routes across Blue, Yellow, Red, and Pink lines with distance, fare, ETA, and interchange details.</html>");
+        title.setAlignmentX(Component.CENTER_ALIGNMENT);
+        title.setHorizontalAlignment(SwingConstants.CENTER);
+        JLabel subtitle = new JLabel("Plan routes across different metro lines with distance, fare, ETA, and interchange details.");
         subtitle.setForeground(new Color(237, 244, 251));
         subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        subtitle.setAlignmentX(Component.CENTER_ALIGNMENT);
+        subtitle.setHorizontalAlignment(SwingConstants.CENTER);
+        JPanel chip = createChip("Choose stations, strategy, then click Find Route");
+        chip.setAlignmentX(Component.CENTER_ALIGNMENT);
         left.add(title);
         left.add(Box.createVerticalStrut(12));
         left.add(subtitle);
         left.add(Box.createVerticalStrut(14));
-        left.add(createChip("Choose stations, strategy, then click Find Route"));
-        JPanel right = buildLegendPanel();
+        left.add(chip);
         hero.add(left, BorderLayout.CENTER);
-        hero.add(right, BorderLayout.EAST);
         return hero;
     }
 
@@ -231,12 +235,15 @@ public class MetroNavigatorView extends JFrame {
         panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 330));
         JPanel left = transparentPanel();
         left.setLayout(new BoxLayout(left, BoxLayout.Y_AXIS));
-        JLabel title = new JLabel("Plan a Journey");
+        left.setAlignmentX(Component.CENTER_ALIGNMENT);
+        JLabel title = new JLabel("PLAN A JOURNEY!");
         title.setForeground(TEXT_PRIMARY);
         title.setFont(new Font("Segoe UI Semibold", Font.BOLD, 24));
+        title.setAlignmentX(Component.CENTER_ALIGNMENT);
         JLabel subtitle = new JLabel("Choose source, destination, route strategy, and use the buttons below.");
         subtitle.setForeground(TEXT_MUTED);
         subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        subtitle.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JPanel fields = transparentPanel();
         fields.setLayout(new GridLayout(1, 3, 14, 14));
@@ -295,26 +302,6 @@ public class MetroNavigatorView extends JFrame {
         cards.add(etaCard);
         panel.add(heading, BorderLayout.NORTH);
         panel.add(cards, BorderLayout.CENTER);
-        return panel;
-    }
-
-    private JPanel buildLegendPanel() {
-        JPanel panel = createPanel(PANEL_ALT, new BorderLayout(0, 12), new EmptyBorder(18, 18, 18, 18));
-        panel.setPreferredSize(new Dimension(360, 0));
-        JLabel title = new JLabel("Line Legend");
-        title.setForeground(TEXT_PRIMARY);
-        title.setFont(new Font("Segoe UI Semibold", Font.BOLD, 16));
-
-        JPanel rows = transparentPanel();
-        rows.setLayout(new GridLayout(5, 1, 10, 10));
-        rows.add(createLegendRow("Blue Line", new Color(63, 131, 230)));
-        rows.add(createLegendRow("Yellow Line", new Color(225, 183, 24)));
-        rows.add(createLegendRow("Red Line", new Color(224, 68, 68)));
-        rows.add(createLegendRow("Pink Line", new Color(221, 90, 163)));
-        rows.add(createLegendRow("Change", WARNING));
-
-        panel.add(title, BorderLayout.NORTH);
-        panel.add(rows, BorderLayout.CENTER);
         return panel;
     }
 
@@ -412,21 +399,6 @@ public class MetroNavigatorView extends JFrame {
         return dropdown;
     }
 
-    private JPanel createLegendRow(String text, Color color) {
-        JPanel row = transparentPanel();
-        row.setLayout(new FlowLayout(FlowLayout.LEFT, 8, 0));
-        JPanel swatch = new JPanel();
-        swatch.setBackground(color);
-        swatch.setPreferredSize(new Dimension(18, 18));
-        swatch.setBorder(BorderFactory.createLineBorder(new Color(255, 255, 255, 40), 1, true));
-        JLabel label = new JLabel(text);
-        label.setForeground(Color.WHITE);
-        label.setFont(new Font("Segoe UI Semibold", Font.BOLD, 13));
-        row.add(swatch);
-        row.add(label);
-        return row;
-    }
-
     private JButton createButton(String text, Color background, Color foreground) {
         JButton button = new JButton(text);
         button.setFont(new Font("Segoe UI Semibold", Font.BOLD, 14));
@@ -465,7 +437,7 @@ public class MetroNavigatorView extends JFrame {
     }
 
     private JPanel createChip(String text) {
-        JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
         panel.setOpaque(true);
         panel.setBackground(new Color(255, 255, 255, 30));
         panel.setBorder(new EmptyBorder(8, 12, 8, 12));
@@ -485,21 +457,6 @@ public class MetroNavigatorView extends JFrame {
         if (selected != null && items.contains(selected.toString())) {
             model.setSelectedItem(selected);
         }
-    }
-
-    private JPanel createInfoBlock(String titleText, String bodyText) {
-        JPanel panel = transparentPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        JLabel title = new JLabel(titleText);
-        title.setForeground(TEXT_PRIMARY);
-        title.setFont(new Font("Segoe UI Semibold", Font.BOLD, 13));
-        JLabel body = new JLabel("<html>" + bodyText + "</html>");
-        body.setForeground(TEXT_MUTED);
-        body.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        panel.add(title);
-        panel.add(Box.createVerticalStrut(4));
-        panel.add(body);
-        return panel;
     }
 
     private JPanel createPanel(Color background, LayoutManager layout, EmptyBorder border) {

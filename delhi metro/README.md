@@ -1,6 +1,6 @@
 # Delhi Metro Navigator
 
-Delhi Metro Navigator is a Java Swing route-planning application that models the metro network as a weighted graph and computes optimal journeys using Dijkstra-based routing strategies. The project was redesigned as a layered academic submission with dynamic JSON data loading, cleaner architecture, and a presentation-ready interface.
+Delhi Metro Navigator is a Java Swing route-planning application that models the metro network as a weighted graph and computes optimal journeys using Dijkstra-based routing strategies. The project was redesigned with a centered, minimalist interface that focuses on four major metro lines (Blue, Yellow, Red, Pink) and supports dynamic JSON data loading, layered architecture, and multiple routing strategies.
 
 ## 1. Introduction
 
@@ -171,21 +171,37 @@ This makes the route engine easier to justify academically because assumptions a
 
 ## 8. UI/UX Improvements
 
-The Swing interface was redesigned to look cleaner and behave more like a polished application.
+The Swing interface was redesigned to prioritize clarity, centering, and minimalism.
 
-### Implemented Improvements
+### Current UI Design
 
+- **Hero Panel**: Center-aligned title "Delhi Metro Navigator" with description and instruction text
+- **Control Panel**: Centered "PLAN A JOURNEY!" heading, focused station selection, and action buttons
+- **Metric Cards**: Trip Snapshot showing stops, distance, fare, and ETA in real-time
+- **Route Visualization**: Animated map panel showing the journey with color-coded metro lines
+- **Minimal Legend**: Removed from main view to reduce visual clutter
+
+### Implemented Features
+
+- center-aligned hero section for cleaner visual hierarchy,
 - button hover effects with cursor feedback,
 - autocomplete in station selection fields,
 - async loading state using `SwingWorker`,
-- animated route drawing in the route panel,
+- animated route drawing with color-coded lines,
 - improved text contrast and readability,
 - cleaner interchange notes such as `Change at Rajiv Chowk from Yellow Line to Blue Line`,
-- cleaner status messages and result summaries for screenshots.
+- cleaner status messages for real-time feedback.
+
+### Metro Lines Supported
+
+- **Blue Line**: Dwarka Sector 21 to Vaishali
+- **Yellow Line**: Samaypur Badli to HUDA City Centre
+- **Red Line**: Rithala to Shaheed Sthal
+- **Pink Line**: Majlis Park to Lajpat Nagar (with interchanges)
 
 ### WOW Feature
 
-Autocomplete search was added so users can type station names directly instead of scrolling through long lists.
+Autocomplete search allows users to type station names directly instead of scrolling through long lists.
 
 ## 9. Design Decisions
 
@@ -282,4 +298,3 @@ This project demonstrates:
 - JSON-based configuration,
 - and desktop UI engineering.
 
-That makes it much stronger than a basic form-based student app and suitable for both academic submission and portfolio presentation.
