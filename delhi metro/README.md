@@ -1,104 +1,285 @@
 # Delhi Metro Navigator
 
-A Java Swing desktop app for finding Delhi Metro routes, fares, estimated travel time, and interchange details.
+Delhi Metro Navigator is a Java Swing route-planning application that models the metro network as a weighted graph and computes optimal journeys using Dijkstra-based routing strategies. The project was redesigned as a layered academic submission with dynamic JSON data loading, cleaner architecture, and a presentation-ready interface.
 
-## Requirements
+## 1. Introduction
 
-- Java JDK 8 or newer
+Metro navigation is a classic graph problem. Stations can be modeled as nodes, rail links as weighted edges, and interchanges as special transfer edges. This project demonstrates how graph theory, software architecture, and user interface design can be combined in a practical desktop application.
 
-## How to Run
+The final system supports multiple routing goals, realistic travel assumptions, and a polished Swing UI that is suitable for final-year project demonstration and screenshots.
 
-Open PowerShell in:
+## 2. Problem Statement
 
-```powershell
-D:\Java Project\delhi metro
+The earlier version of the project worked functionally, but it suffered from common student-project problems:
+
+- metro data was hardcoded directly inside Java source code,
+- the GUI class handled routing, formatting, and event coordination together,
+- only one route optimization strategy existed,
+- travel modeling relied on fixed magic numbers,
+- the UI looked static and offered limited interaction feedback.
+
+This redesigned version solves those issues through architecture refactoring, Strategy pattern usage, external JSON data, and improved UI behavior.
+
+## 3. System Architecture
+
+The project uses a layered architecture with manual dependency injection.
+
+```text
+Main
+  -> AppLauncher
+      -> JsonMetroRepository
+      -> MetroService
+      -> RouteController
+      -> MetroNavigatorView
 ```
 
-Compile the project:
+### Responsibilities
 
-```powershell
-javac Main.java Graph.java MetroGUI.java Station.java InvalidStationException.java
+- `view/`:
+  renders the Swing interface, route cards, status bar, autocomplete, hover effects, and animated route map.
+- `controller/`:
+  listens to user actions, triggers route calculation, and updates view state.
+- `service/`:
+  contains business logic, route validation, Dijkstra execution, and result summarization.
+- `data/`:
+  loads JSON network data and builds the graph dynamically.
+- `routing/`:
+  contains route strategies for different optimization goals.
+- `model/`:
+  defines immutable domain objects used across layers.
+
+### Folder Structure
+
+```text
+.
+|-- Main.java
+|-- app/
+|-- controller/
+|-- data/
+|-- model/
+|-- resources/
+|   `-- data/
+|       `-- metro-network.json
+|-- routing/
+|-- service/
+|-- util/
+`-- view/
 ```
 
-Run the app:
+## 4. Data Layer and JSON Modeling
+
+The metro network is no longer hardcoded in `Graph.java`. It is loaded from:
+
+`resources/data/metro-network.json`
+
+### JSON Structure
+
+```json
+{
+  "config": {
+    "minutesPerKm": 2.3,
+    "stationDwellMinutes": 0.8,
+    "interchangePenaltyMinutes": 5.0
+  },
+  "stations": [
+    { "name": "Rajiv Chowk" }
+  ],
+  "lines": [
+    {
+      "name": "Yellow",
+      "color": "#E1B718",
+      "stations": [
+        { "station": "New Delhi", "distanceToNextKm": 0.9 },
+        { "station": "Rajiv Chowk", "distanceToNextKm": 1.1 },
+        { "station": "Patel Chowk" }
+      ]
+    }
+  ],
+  "interchanges": [
+    { "station": "Rajiv Chowk", "fromLine": "Yellow", "toLine": "Blue", "walkingDistanceKm": 0.25 }
+  ]
+}
+```
+
+### Why This Is Better
+
+- new stations or lines can be added without changing routing code,
+- transfer links are explicit,
+- travel assumptions are configurable,
+- the data layer is easier to explain in a viva and easier to maintain.
+
+## 5. Algorithm Explanation
+
+### Why Dijkstra's Algorithm
+
+Dijkstra's algorithm is appropriate because the metro network is a weighted graph with non-negative edge costs. The system needs optimal point-to-point route computation, and Dijkstra guarantees the shortest valid path for the chosen cost function.
+
+### Time Complexity
+
+Using a priority queue, the complexity is:
+
+`O(E log V)`
+
+where:
+
+- `V` = number of graph nodes,
+- `E` = number of track and interchange edges.
+
+This is efficient for an academic metro-scale network and is significantly more appropriate than unweighted traversal methods.
+
+## 6. Routing Strategies
+
+The project uses the Strategy Design Pattern.
+
+```java
+public interface RouteStrategy {
+    RouteStrategyType type();
+    double edgeCost(MetroEdge edge);
+}
+```
+
+### Shortest Distance
+
+- minimizes total kilometers,
+- suitable when physical distance is the primary objective.
+
+### Minimum Interchange
+
+- assigns a very high cost to interchange edges,
+- prioritizes fewer line changes,
+- useful for simpler passenger journeys.
+
+### Fastest Route
+
+- minimizes estimated travel time,
+- uses distance, station dwell time, and interchange penalty,
+- produces the most realistic academic approximation of travel time.
+
+## 7. Realistic Modeling
+
+The project no longer uses fixed constants like `STATION_HOP` and `INTERCHANGE_HOP`.
+
+Instead it uses:
+
+- `distanceToNextKm`
+- `minutesPerKm`
+- `stationDwellMinutes`
+- `interchangePenaltyMinutes`
+- configurable fare slabs
+
+This makes the route engine easier to justify academically because assumptions are visible and tunable instead of hidden as magic numbers.
+
+## 8. UI/UX Improvements
+
+The Swing interface was redesigned to look cleaner and behave more like a polished application.
+
+### Implemented Improvements
+
+- button hover effects with cursor feedback,
+- autocomplete in station selection fields,
+- async loading state using `SwingWorker`,
+- animated route drawing in the route panel,
+- improved text contrast and readability,
+- cleaner interchange notes such as `Change at Rajiv Chowk from Yellow Line to Blue Line`,
+- cleaner status messages and result summaries for screenshots.
+
+### WOW Feature
+
+Autocomplete search was added so users can type station names directly instead of scrolling through long lists.
+
+## 9. Design Decisions
+
+### Why Swing
+
+- included in standard Java,
+- easy to run in classroom or lab environments,
+- supports custom painting for route visualization,
+- avoids setup complexity that comes with heavier UI frameworks.
+
+### Why a Graph Model
+
+- metro systems naturally map to nodes and edges,
+- interchange behavior can be represented explicitly,
+- multiple routing strategies can reuse the same graph.
+
+### Why Not BFS
+
+BFS assumes equal edge cost. This project uses different distances, times, and transfer penalties, so BFS would not guarantee optimal answers.
+
+### Why Not a Database
+
+For this academic scope, JSON is more practical than a database because:
+
+- it is lightweight,
+- easy to review and edit,
+- simple to version-control,
+- and avoids deployment overhead.
+
+## 10. Running the Project
+
+Open PowerShell in the project folder and compile:
+
+```powershell
+javac Main.java app\*.java controller\*.java data\*.java model\*.java routing\*.java service\*.java util\*.java view\*.java
+```
+
+Run:
 
 ```powershell
 java Main
 ```
 
-## Check Java Installation
+## 11. Suggested Demonstration Cases
 
-If the commands fail, verify Java is installed:
+### Same-Line Route
 
-```powershell
-java -version
-javac -version
-```
+- Source: `Samaypur Badli`
+- Destination: `Rajiv Chowk`
+- Strategy: `Shortest Distance`
 
-## Project Files
+### Cross-Line Route
 
-- `Main.java` - starts the app
-- `MetroGUI.java` - user interface
-- `Graph.java` - metro network and route logic
-- `Station.java` - station model
-- `InvalidStationException.java` - custom exception handling
+- Source: `Hauz Khas`
+- Destination: `Vaishali`
+- Strategy: `Fastest Route`
 
-## What This App Shows
+### Minimum Interchange Example
 
-- Best route between two stations
-- Total stops
-- Fare
-- Estimated travel time
-- Interchange count and notes
+- Source: `Azadpur`
+- Destination: `Lajpat Nagar`
+- Strategy: `Minimum Interchange`
 
-## Chapter 5 Test Cases
+### Validation Example
 
-### 5.1 Test Case 1 - Same Line Route (Yellow Line)
+- Source: `Rajiv Chowk`
+- Destination: `Rajiv Chowk`
+- Expected: validation error
 
-Source: Samaypur Badli | Destination: Rajiv Chowk
+## 12. Limitations
 
-Expected output: 15 stops, Rs 40 fare, no interchange, estimated about 30 minutes. All stations in the route timeline should show Yellow Line.
+- This is still a curated academic dataset, not the full live DMRC system.
+- The fare model is approximate and not an official DMRC fare engine.
+- The route map is schematic, not geographically accurate.
+- Real-time service disruptions and congestion are not included.
+- Accessibility-aware routing and schedule planning are not yet supported.
 
-Screenshot tip: Capture the full application window so the route list, trip snapshot cards, and bottom status bar are visible.
+## 13. Future Scope
 
-### 5.2 Test Case 2 - Cross-Line Route (Yellow to Blue)
+- integrate real-time data when available,
+- support full Delhi Metro line coverage,
+- compare all routing strategies side by side,
+- export route summaries as PDF or image,
+- add accessibility-aware and schedule-aware planning.
 
-Source: Hauz Khas | Destination: Vaishali
+## 14. Academic Value
 
-Expected output: Route travels on Yellow Line to Rajiv Chowk, then shifts to Blue Line toward Vaishali. The interchange note at Rajiv Chowk should be clearly visible. Fare should be Rs 50.
+This project demonstrates:
 
-Screenshot tip: Make sure the full route line and interchange notes are both visible in the result area.
+- graph modeling,
+- shortest-path optimization,
+- layered software architecture,
+- Strategy pattern,
+- JSON-based configuration,
+- and desktop UI engineering.
 
-### 5.3 Test Case 3 - Same Station Error
-
-Source: Rajiv Chowk | Destination: Rajiv Chowk
-
-Expected output: Error message in red stating that source and destination cannot be the same station.
-
-Screenshot tip: Capture the red error text in the result area together with the red status bar message at the bottom.
-
-### 5.4 Test Case 4 - Short Route (Adjacent Stations)
-
-Source: Green Park | Destination: Hauz Khas
-
-Expected output: 1 stop, Rs 10 fare, estimated 2 minutes, and a minimal direct route.
-
-Screenshot tip: Keep the full route line and trip snapshot cards in view.
-
-### 5.5 Test Case 5 - Blue Line End to End
-
-Source: Dwarka Sector 21 | Destination: Vaishali
-
-Expected output: Full Blue Line route, 37 stops, Rs 50 fare, estimated about 74 minutes.
-
-Screenshot tip: Maximize the app window so the long route output and full station timeline remain readable.
-
-## Limitations
-
-- Static network: the metro graph is hardcoded in Java and does not update from a live database.
-- Simplified fare structure: fare is estimated from stop count, while real DMRC pricing is more detailed.
-- No real-time data: delays, service disruptions, and peak-hour conditions are not considered.
-- No visual metro map: the route is shown as a text path and Swing route panel, not as a full geographic network map.
-- Limited line coverage: this project currently includes Yellow, Blue, Pink, Green, and Red lines only.
-- No accessibility-aware routing: elevator or disabled-friendly routing is not included.
-- No first or last train timing data: the app does not show operating schedule information.
+That makes it much stronger than a basic form-based student app and suitable for both academic submission and portfolio presentation.

@@ -1,0 +1,12 @@
+{
+  "java.project.sourcePaths": [
+    "."
+  ],
+  "java.project.resourceFilters": [
+    "src",
+    "src_legacy",
+    "**/*.class",
+    "out"
+  ],
+  "java.project.explorer.showNonJavaResources": true
+}
