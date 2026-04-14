@@ -320,19 +320,18 @@ public class MetroGUI extends JFrame implements ActionListener {
 
     private JPanel buildLegendPanel() {
         JPanel legendPanel = createPanel(new Color(10, 22, 42), new BorderLayout(0, 14), new EmptyBorder(18, 20, 18, 20));
-        legendPanel.setPreferredSize(new Dimension(226, 190));
+        legendPanel.setPreferredSize(new Dimension(260, 220));
 
         JLabel title = new JLabel("Line Legend");
         title.setForeground(TEXT_PRIMARY);
         title.setFont(new Font("Segoe UI Semibold", Font.BOLD, 16));
 
-        JPanel rows = new JPanel(new GridLayout(3, 2, 8, 10));
+        JPanel rows = new JPanel(new GridLayout(5, 1, 10, 10));
         rows.setOpaque(false);
-        rows.add(createLegendRow("Yellow", YELLOW));
-        rows.add(createLegendRow("Blue", BLUE));
-        rows.add(createLegendRow("Pink", PINK));
-        rows.add(createLegendRow("Green", GREEN));
-        rows.add(createLegendRow("Red", RED));
+        rows.add(createLegendRow("Blue Line", BLUE));
+        rows.add(createLegendRow("Yellow Line", YELLOW));
+        rows.add(createLegendRow("Red Line", RED));
+        rows.add(createLegendRow("Pink Line", PINK));
         rows.add(createLegendRow("Transfer", WARNING));
 
         legendPanel.add(title, BorderLayout.NORTH);
@@ -411,8 +410,8 @@ public class MetroGUI extends JFrame implements ActionListener {
         swatch.setBorder(new LineBorder(new Color(255, 255, 255, 35), 1, true));
 
         JLabel label = new JLabel(text);
-        label.setForeground(TEXT_PRIMARY);
-        label.setFont(new Font("Segoe UI Semibold", Font.BOLD, 12));
+        label.setForeground(Color.WHITE);
+        label.setFont(new Font("Segoe UI Semibold", Font.BOLD, 13));
 
         row.add(swatch);
         row.add(label);
