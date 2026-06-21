@@ -11,7 +11,6 @@ import java.util.List;
 public class MetroGUI extends JFrame implements ActionListener {
 
     private static final Color PAGE_BG = new Color(8, 15, 29);
-    private static final Color HERO_BG = new Color(18, 31, 56);
     private static final Color PANEL_BG = new Color(23, 39, 69);
     private static final Color PANEL_BG_ALT = new Color(13, 26, 48);
     private static final Color CARD_BG = new Color(247, 250, 255);
