@@ -66,44 +66,10 @@ Main
 `-- view/
 ```
 
-## 4. Data Layer and JSON Modeling
-
-The metro network is no longer hardcoded in `Graph.java`. It is loaded from:
-
-`resources/data/metro-network.json`
-
-### JSON Structure
-
-```json
-{
-  "config": {
-    "minutesPerKm": 2.3,
-    "stationDwellMinutes": 0.8,
-    "interchangePenaltyMinutes": 5.0
-  },
-  "stations": [
-    { "name": "Rajiv Chowk" }
-  ],
-  "lines": [
-    {
-      "name": "Yellow",
-      "color": "#E1B718",
-      "stations": [
-        { "station": "New Delhi", "distanceToNextKm": 0.9 },
-        { "station": "Rajiv Chowk", "distanceToNextKm": 1.1 },
-        { "station": "Patel Chowk" }
-      ]
-    }
-  ],
-  "interchanges": [
-    { "station": "Rajiv Chowk", "fromLine": "Yellow", "toLine": "Blue", "walkingDistanceKm": 0.25 }
-  ]
-}
-```
 
 ### Why This Is Better
 
-- new stations or lines can be added without changing routing code,
+- new stations or lines can be added without changing the routing code,
 - transfer links are explicit,
 - travel assumptions are configurable,
 - the data layer is easier to explain in a viva and easier to maintain.
@@ -127,17 +93,6 @@ where:
 
 This is efficient for an academic metro-scale network and is significantly more appropriate than unweighted traversal methods.
 
-## 6. Routing Strategies
-
-The project uses the Strategy Design Pattern.
-
-```java
-public interface RouteStrategy {
-    RouteStrategyType type();
-    double edgeCost(MetroEdge edge);
-}
-```
-
 ### Shortest Distance
 
 - minimizes total kilometers,
@@ -155,23 +110,6 @@ public interface RouteStrategy {
 - uses distance, station dwell time, and interchange penalty,
 - produces the most realistic academic approximation of travel time.
 
-## 7. Realistic Modeling
-
-The project no longer uses fixed constants like `STATION_HOP` and `INTERCHANGE_HOP`.
-
-Instead it uses:
-
-- `distanceToNextKm`
-- `minutesPerKm`
-- `stationDwellMinutes`
-- `interchangePenaltyMinutes`
-- configurable fare slabs
-
-This makes the route engine easier to justify academically because assumptions are visible and tunable instead of hidden as magic numbers.
-
-## 8. UI/UX Improvements
-
-The Swing interface was redesigned to prioritize clarity, centering, and minimalism.
 
 ### Current UI Design
 
@@ -179,7 +117,7 @@ The Swing interface was redesigned to prioritize clarity, centering, and minimal
 - **Control Panel**: Centered "PLAN A JOURNEY!" heading, focused station selection, and action buttons
 - **Metric Cards**: Trip Snapshot showing stops, distance, fare, and ETA in real-time
 - **Route Visualization**: Animated map panel showing the journey with color-coded metro lines
-- **Minimal Legend**: Removed from main view to reduce visual clutter
+
 
 ### Implemented Features
 
